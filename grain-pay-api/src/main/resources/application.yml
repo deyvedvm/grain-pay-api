@@ -1,0 +1,83 @@
+spring:
+  config:
+    activate:
+      on-profile: default
+  datasource:
+    url: jdbc:postgresql://localhost:5432/grainpay
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp:
+          use_jdbc_metadata_defaults: false
+#    hibernate:
+#      ddl-auto: create-drop
+    show-sql: true
+    generate-ddl: true
+  application:
+    name: grain-pay-api
+  flyway:
+    enabled: true
+server:
+  port: ${PORT}
+management:
+  datadog:
+    metrics:
+      export:
+        api-key: ${DATADOG_API_KEY}
+        host-tag: ${spring.application.name}
+        enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_URL}
+    password: ${POSTGRES_PASSWORD}
+management:
+  datadog:
+    metrics:
+      export:
+        api-key: ${DATADOG_API_KEY}
+        host-tag: ${spring.application.name}
+        enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: stage
+  datasource:
+    url: jdbc:postgresql://localhost:5432/grainpay_stage
+    username: stage_user
+    password: stage_password
+management:
+  datadog:
+    metrics:
+      export:
+        api-key: ${DATADOG_API_KEY}
+        host-tag: ${spring.application.name}
+        enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://localhost:5432/grainpay_prod
+    username: prod_user
+    password: prod_password
+management:
+  datadog:
+    metrics:
+      export:
+        api-key: ${DATADOG_API_KEY}
+        host-tag: ${spring.application.name}
+        enabled: true
