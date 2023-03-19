@@ -23,13 +23,6 @@ spring:
     enabled: true
 server:
   port: ${PORT}
-management:
-  datadog:
-    metrics:
-      export:
-        api-key: ${DATADOG_API_KEY}
-        host-tag: ${spring.application.name}
-        enabled: true
 
 ---
 spring:
@@ -40,13 +33,6 @@ spring:
     url: ${POSTGRES_URL}
     username: ${POSTGRES_URL}
     password: ${POSTGRES_PASSWORD}
-management:
-  datadog:
-    metrics:
-      export:
-        api-key: ${DATADOG_API_KEY}
-        host-tag: ${spring.application.name}
-        enabled: true
 
 ---
 spring:
@@ -57,13 +43,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/grainpay_stage
     username: stage_user
     password: stage_password
-management:
-  datadog:
-    metrics:
-      export:
-        api-key: ${DATADOG_API_KEY}
-        host-tag: ${spring.application.name}
-        enabled: true
 
 ---
 spring:
@@ -74,10 +53,3 @@ spring:
     url: jdbc:postgresql://localhost:5432/grainpay_prod
     username: prod_user
     password: prod_password
-management:
-  datadog:
-    metrics:
-      export:
-        api-key: ${DATADOG_API_KEY}
-        host-tag: ${spring.application.name}
-        enabled: true
