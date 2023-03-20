@@ -3,9 +3,9 @@ spring:
     activate:
       on-profile: default
   datasource:
-    url: jdbc:postgresql://localhost:5432/grainpay
-    username: user
-    password: password
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     properties:
@@ -13,8 +13,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         temp:
           use_jdbc_metadata_defaults: false
-#    hibernate:
-#      ddl-auto: create-drop
     show-sql: true
     generate-ddl: true
   application:
@@ -33,6 +31,8 @@ spring:
     url: ${POSTGRES_URL}
     username: ${POSTGRES_URL}
     password: ${POSTGRES_PASSWORD}
+server:
+  port: ${PORT}
 
 ---
 spring:
@@ -43,6 +43,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/grainpay_stage
     username: stage_user
     password: stage_password
+server:
+  port: ${PORT}
 
 ---
 spring:
@@ -53,3 +55,5 @@ spring:
     url: jdbc:postgresql://localhost:5432/grainpay_prod
     username: prod_user
     password: prod_password
+server:
+  port: ${PORT}
