@@ -15,8 +15,6 @@ import java.util.Objects;
 @Setter
 @Entity
 @ToString
-@AllArgsConstructor
-@NoArgsConstructor
 public class Expense {
 
     @Id
@@ -25,6 +23,7 @@ public class Expense {
     private String description;
     private BigDecimal amount;
     private LocalDate date;
+    private PaymentType paymentType;
 
     @Override
     public boolean equals(Object o) {
