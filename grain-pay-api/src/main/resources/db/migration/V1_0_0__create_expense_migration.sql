@@ -1,10 +1,10 @@
-CREATE TABLE expense (
-    id           bigint         not null constraint expense_pkey primary key,
-    created_at   timestamp      not null,
-    date         timestamp      not null,
+create table expense
+(
+    id           bigserial primary key,
+    amount       numeric(19, 2) not null,
+    created_at   timestamp(6)   not null,
+    date         timestamp(6)   not null,
     description  varchar(255)   not null,
-    external_id  uuid,
     payment_type varchar(255)   not null,
-    updated_at   timestamp,
-    value        numeric(19, 2) not null
+    updated_at   timestamp(6)
 );
