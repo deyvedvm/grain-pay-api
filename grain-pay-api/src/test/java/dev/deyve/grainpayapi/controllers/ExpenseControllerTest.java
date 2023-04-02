@@ -3,9 +3,9 @@ package dev.deyve.grainpayapi.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.deyve.grainpayapi.dtos.ExpenseDTO;
 import dev.deyve.grainpayapi.models.PaymentType;
-import dev.deyve.grainpayapi.repositories.ExpenseRepository;
 import dev.deyve.grainpayapi.services.ExpenseService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -26,7 +26,6 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,15 +41,13 @@ class ExpenseControllerTest {
     @MockBean
     private ExpenseService expenseService;
 
-    @MockBean
-    private ExpenseRepository expenseRepository;
-
     @BeforeEach
     void setUp() {
 
     }
 
     @Test
+    @DisplayName("Should return a list of expenses")
     void shouldReturnListOfExpenses() throws Exception {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id"));
 
@@ -69,7 +66,6 @@ class ExpenseControllerTest {
         //  when
         mockMvc.perform(get("/api/expenses")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].description").value("Mock description"))
@@ -82,7 +78,8 @@ class ExpenseControllerTest {
     }
 
     @Test
-    void shouldPostExpense() throws Exception {
+    @DisplayName("Should save expense and return expense saved")
+    void shouldSaveExpenseAndReturnExpenseSaved() throws Exception {
         ExpenseDTO mockExpenseDTO = ExpenseDTO.builder()
                 .description("Celphone")
                 .amount(BigDecimal.valueOf(1000.00))
@@ -105,21 +102,27 @@ class ExpenseControllerTest {
         mockMvc.perform(post("/api/expenses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockExpenseDTO)))
-//                .andDo(print())
-                .andExpect(status().isCreated());
-//                .andExpect(jsonPath("$.description").value("Expense Saved"));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.description").value("Celphone"))
+                .andExpect(jsonPath("$.amount").value(BigDecimal.valueOf(1000.00)))
+                .andExpect(jsonPath("$.date").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.paymentType").value(PaymentType.MONEY.getDescription()));
 
         // then
         verify(expenseService, times(1)).saveExpense(mockExpenseDTO);
     }
 
     @Test
+    @DisplayName("Should return a expense by id")
     void shouldReturnExpenseById() throws Exception {
         Long mockId = 1L;
         ExpenseDTO mockExpenseDTO = ExpenseDTO.builder()
                 .id(mockId)
                 .description("Mock description")
                 .amount(BigDecimal.TEN)
+                .date(LocalDateTime.of(2023, 4, 1, 0, 0))
+                .paymentType(PaymentType.MONEY)
                 .build();
 
         //  given
@@ -128,16 +131,18 @@ class ExpenseControllerTest {
         //  when
         mockMvc.perform(get("/api/expenses/{id}", mockId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description").value(mockExpenseDTO.getDescription()))
-                .andExpect(jsonPath("$.amount").value(mockExpenseDTO.getAmount()));
+                .andExpect(jsonPath("$.amount").value(mockExpenseDTO.getAmount()))
+                .andExpect(jsonPath("$.date").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.paymentType").value(mockExpenseDTO.getPaymentType().getDescription()));
 
         //  then
         verify(expenseService, times(1)).findExpenseById(mockId);
     }
 
     @Test
+    @DisplayName("Should return a expense updated")
     void shouldUpdateExpenseById() throws Exception {
         Long mockId = 1L;
         ExpenseDTO mockExpenseDTO = ExpenseDTO.builder()
@@ -163,17 +168,19 @@ class ExpenseControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/expenses/{id}", mockId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockExpenseDTO)))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Updated description"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.amount").value(BigDecimal.ONE));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.amount").value(updatedExpenseDTO.getAmount()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.date").value("2023-04-01T00:00:00"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.paymentType").value(PaymentType.MONEY.getDescription()));
 
         // then
         verify(expenseService, times(1)).updateExpenseById(mockId, mockExpenseDTO);
     }
 
     @Test
+    @DisplayName("Should delete expense and return no content")
     void shouldDeleteExpenseAndReturnNoContent() throws Exception {
         Long mockId = 1L;
 
@@ -183,7 +190,6 @@ class ExpenseControllerTest {
         //  when
         mockMvc.perform(delete("/api/expenses/{id}", mockId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isNoContent());
 
         //  then
