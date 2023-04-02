@@ -41,8 +41,6 @@ public class ExpenseService {
     public ExpenseDTO saveExpense(ExpenseDTO expenseDTO) {
         Expense expense = expenseMapper.toEntity(expenseDTO);
 
-        logger.info("***********************" + expense);
-
         Expense expenseSaved = expenseRepository.save(expense);
 
         logger.debug("GRAIN-API: Expense Saved: {}", expenseSaved);

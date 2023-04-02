@@ -1,9 +1,7 @@
 package dev.deyve.grainpayapi.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.math.BigDecimal;
@@ -13,7 +11,10 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
+@Builder
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Expense {
 
     @Id
@@ -43,7 +44,7 @@ public class Expense {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Expense expense = (Expense) o;
-        return id != null && Objects.equals(id, expense.id);
+        return getId() != null && Objects.equals(getId(), expense.getId());
     }
 
     @Override

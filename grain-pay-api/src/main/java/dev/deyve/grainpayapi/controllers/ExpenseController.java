@@ -2,6 +2,7 @@ package dev.deyve.grainpayapi.controllers;
 
 import dev.deyve.grainpayapi.dtos.ExpenseDTO;
 import dev.deyve.grainpayapi.services.ExpenseService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -42,7 +43,7 @@ public class ExpenseController {
     }
 
     @PostMapping
-    public ResponseEntity<ExpenseDTO> postExpense(@RequestBody ExpenseDTO expenseDTO) {
+    public ResponseEntity<ExpenseDTO> postExpense(@Valid @RequestBody ExpenseDTO expenseDTO) {
 
         ExpenseDTO expense = expenseService.saveExpense(expenseDTO);
 
@@ -54,21 +55,21 @@ public class ExpenseController {
     @GetMapping("/{id}")
     public ResponseEntity<ExpenseDTO> getExpense(@PathVariable Long id) {
 
-        ExpenseDTO expense = expenseService.findExpenseById(id);
+        ExpenseDTO expenseDTO = expenseService.findExpenseById(id);
 
-        logger.debug("GRAIN-API: Expense: {}", expense);
+        logger.debug("GRAIN-API: Expense: {}", expenseDTO);
 
-        return new ResponseEntity<>(expense, HttpStatus.OK);
+        return new ResponseEntity<>(expenseDTO, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ExpenseDTO> putExpense(@PathVariable Long id, @RequestBody ExpenseDTO expenseDTO) {
+    public ResponseEntity<ExpenseDTO> putExpense(@PathVariable Long id, @Valid @RequestBody ExpenseDTO expenseDTO) {
 
-        ExpenseDTO expense = expenseService.updateExpenseById(id, expenseDTO);
+        ExpenseDTO updatedExpenseDTO = expenseService.updateExpenseById(id, expenseDTO);
 
-        logger.debug("GRAIN-API: Expense: {}", expense);
+        logger.debug("GRAIN-API: Expense: {}", updatedExpenseDTO);
 
-        return new ResponseEntity<>(expense, HttpStatus.OK);
+        return new ResponseEntity<>(updatedExpenseDTO, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
