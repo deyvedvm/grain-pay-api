@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/expenses")
@@ -27,6 +28,11 @@ public class ExpenseController {
         this.expenseService = expenseService;
     }
 
+    /**
+     * Get Expenses by Page
+     *
+     * @return List<ExpenseDTO> List of Expenses
+     */
     @GetMapping
     public ResponseEntity<List<ExpenseDTO>> getExpenses(
             @RequestParam(defaultValue = "0") Integer page,
@@ -42,6 +48,12 @@ public class ExpenseController {
         return new ResponseEntity<>(expenses.getContent(), HttpStatus.OK);
     }
 
+    /**
+     * Post Expense
+     *
+     * @param expenseDTO New Expense
+     * @return ResponseEntity
+     */
     @PostMapping
     public ResponseEntity<ExpenseDTO> postExpense(@Valid @RequestBody ExpenseDTO expenseDTO) {
 
@@ -52,33 +64,84 @@ public class ExpenseController {
         return new ResponseEntity<>(expense, HttpStatus.CREATED);
     }
 
+    /**
+     * Get Expense by Id
+     *
+     * @param id Expense Id
+     * @return ResponseEntity
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ExpenseDTO> getExpense(@PathVariable Long id) {
 
-        ExpenseDTO expenseDTO = expenseService.findExpenseById(id);
+        try {
+            ExpenseDTO expenseDTO = expenseService.findExpenseById(id);
 
-        logger.debug("GRAIN-API: Expense: {}", expenseDTO);
+            logger.debug("GRAIN-API: Expense: {}", expenseDTO);
 
-        return new ResponseEntity<>(expenseDTO, HttpStatus.OK);
+            return new ResponseEntity<>(expenseDTO, HttpStatus.OK);
+
+        } catch (NoSuchElementException e) {
+
+            logger.error("GRAIN-API: Error finding expense: {}", e.getMessage());
+
+            throw new NoSuchElementException("Expense not found");
+        }
     }
 
+    /**
+     * Put Expense by Id
+     *
+     * @param id         Expense Id
+     * @param expenseDTO Expense
+     * @return ResponseEntity
+     */
     @PutMapping("/{id}")
     public ResponseEntity<ExpenseDTO> putExpense(@PathVariable Long id, @Valid @RequestBody ExpenseDTO expenseDTO) {
 
-        ExpenseDTO updatedExpenseDTO = expenseService.updateExpenseById(id, expenseDTO);
+        try {
+            ExpenseDTO updatedExpenseDTO = expenseService.updateExpenseById(id, expenseDTO);
 
-        logger.debug("GRAIN-API: Expense: {}", updatedExpenseDTO);
+            logger.debug("GRAIN-API: Expense: {}", updatedExpenseDTO);
 
-        return new ResponseEntity<>(updatedExpenseDTO, HttpStatus.OK);
+            return new ResponseEntity<>(updatedExpenseDTO, HttpStatus.OK);
+
+        } catch (IllegalArgumentException e) {
+
+            logger.error("GRAIN-API: Error updating expense: {}", e.getMessage());
+
+            throw new IllegalArgumentException(e.getMessage());
+
+        } catch (NoSuchElementException e) {
+
+            logger.error("GRAIN-API: Error updating expense: {}", e.getMessage());
+
+            throw new NoSuchElementException("Expense not found");
+        }
     }
 
+
+    /**
+     * Delete Expense by Id
+     *
+     * @param id Expense Id
+     * @return ResponseEntity
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
 
-        expenseService.deleteExpenseById(id);
+        try {
 
-        logger.debug("GRAIN-API: Expense deleted");
+            expenseService.deleteExpenseById(id);
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            logger.info("GRAIN-API: Expense id {} deleted", id);
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        } catch (NoSuchElementException e) {
+
+            logger.error("GRAIN-API: Error deleting expense id {}: {}", id, e.getMessage());
+
+            throw new NoSuchElementException("Expense not found");
+        }
     }
 }

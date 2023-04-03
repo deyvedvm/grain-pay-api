@@ -28,7 +28,7 @@ public class ExpenseService {
     /**
      * Find All Expenses
      *
-     * @return List<ExpenseDTO>
+     * @return Page of ExpenseDTO
      */
     public Page<ExpenseDTO> findExpenses(Pageable pageable) {
         Page<Expense> expenses = expenseRepository.findAll(pageable);
@@ -38,6 +38,12 @@ public class ExpenseService {
         return expenses.map(expenseMapper::toDTO);
     }
 
+    /**
+     * Save Expense
+     *
+     * @param expenseDTO ExpenseDTO
+     * @return ExpenseDTO
+     */
     public ExpenseDTO saveExpense(ExpenseDTO expenseDTO) {
         Expense expense = expenseMapper.toEntity(expenseDTO);
 
@@ -48,6 +54,12 @@ public class ExpenseService {
         return expenseMapper.toDTO(expenseSaved);
     }
 
+    /**
+     * Find Expense by Id
+     *
+     * @param id Long
+     * @return ExpenseDTO
+     */
     public ExpenseDTO findExpenseById(Long id) {
         Expense expense = expenseRepository.findById(id).orElseThrow();
 
@@ -56,10 +68,21 @@ public class ExpenseService {
         return expenseMapper.toDTO(expense);
     }
 
+    /**
+     * Update Expense by Id
+     *
+     * @param id         Long
+     * @param expenseDTO ExpenseDTO
+     * @return ExpenseDTO
+     */
     public ExpenseDTO updateExpenseById(Long id, ExpenseDTO expenseDTO) {
+
+        checkId(id, expenseDTO);
+
         expenseRepository.findById(id).orElseThrow();
 
         Expense expense = expenseMapper.toEntity(expenseDTO);
+        expense.setId(id);
 
         Expense expenseUpdated = expenseRepository.save(expense);
 
@@ -68,10 +91,31 @@ public class ExpenseService {
         return expenseMapper.toDTO(expenseUpdated);
     }
 
+
+    /**
+     * Delete Expense by Id
+     *
+     * @param id Long
+     */
     public void deleteExpenseById(Long id) {
+
         logger.debug("GRAIN-API: Expense Deleted Id: {}", id);
 
+        expenseRepository.findById(id).orElseThrow();
+
         expenseRepository.deleteById(id);
+    }
+
+    /**
+     * Check Id
+     *
+     * @param id         Long
+     * @param expenseDTO ExpenseDTO
+     */
+    private void checkId(Long id, ExpenseDTO expenseDTO) {
+        if (!id.equals(expenseDTO.getId())) {
+            throw new IllegalArgumentException("Id is not the same");
+        }
     }
 
 }

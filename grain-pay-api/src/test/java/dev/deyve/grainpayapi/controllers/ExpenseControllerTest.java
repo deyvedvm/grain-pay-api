@@ -19,10 +19,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -194,5 +194,22 @@ class ExpenseControllerTest {
 
         //  then
         verify(expenseService, times(1)).deleteExpenseById(1L);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when try to delete expense")
+    void shouldThrowExceptionWhenTryToDeleteExpense() throws Exception {
+        Long mockId = 2L;
+
+        //  given
+        willThrow(NoSuchElementException.class).given(expenseService).deleteExpenseById(mockId);
+
+        //  when
+        mockMvc.perform(delete("/api/expenses/{id}", mockId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        //  then
+        verify(expenseService, times(1)).deleteExpenseById(2L);
     }
 }
