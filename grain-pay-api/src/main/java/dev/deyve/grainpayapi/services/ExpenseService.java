@@ -91,7 +91,6 @@ public class ExpenseService {
         return expenseMapper.toDTO(expenseUpdated);
     }
 
-
     /**
      * Delete Expense by Id
      *
