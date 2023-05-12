@@ -20,6 +20,7 @@ jobs:
 
       - name: Build with Maven
         run: mvn package
+        working-directory: ./grain-pay-api  # Change this to your app's directory
 
       - name: Deploy to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
@@ -28,4 +29,5 @@ jobs:
           heroku_app_name: "grain-pay-api"
           heroku_email: "dvmachado@id.uff.br"
           jdkVersion: '17'
+          appdir: "grain-pay-api"  # This should be the path to your app directory
           healthcheck: "https://YOUR_APP_NAME.herokuapp.com"
