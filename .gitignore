@@ -1,0 +1,33 @@
+# Maven-specific
+target/
+
+# Gradle-specific
+build/
+
+# IDE-specific
+.idea/
+.vscode/
+
+# Spring Boot-specific
+bin/
+logs/
+*.log
+
+# Compiled Java classes
+*.class
+
+# Compiled Jar files
+*.jar
+
+# Dependency directories
+lib/
+libs/
+
+# Eclipse-specific
+.settings/
+
+# Intellij-specific
+*.iml
+*.ipr
+*.iws
+out/

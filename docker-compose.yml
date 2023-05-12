@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  app:
+    container_name: grain-pay-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/grain-pay-local
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      PORT: 8080
+  db:
+    container_name: grain-pay-postgres
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: grain-pay-local
+    ports:
+      - "5432:5432"
