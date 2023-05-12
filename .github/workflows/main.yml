@@ -3,7 +3,7 @@ name: Deploy to Heroku
 on:
   push:
     branches:
-      - main  # Set a branch to deploy
+      - master
 
 jobs:
   build:
@@ -28,4 +28,4 @@ jobs:
           heroku_app_name: "grain-pay-api"
           heroku_email: "dvmachado@id.uff.br"
           jdkVersion: '17'
-          healthcheck: "https://YOUR_APP_NAME.herokuapp.com"
+          healthcheck: "https://grain-pay-api.herokuapp.com/"
