@@ -1,5 +1,6 @@
 package dev.deyve.grainpayapi.dtos;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.deyve.grainpayapi.models.PaymentType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExpenseDTO {
 
     private Long id;
