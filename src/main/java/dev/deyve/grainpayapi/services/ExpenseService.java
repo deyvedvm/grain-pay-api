@@ -1,6 +1,7 @@
 package dev.deyve.grainpayapi.services;
 
 import dev.deyve.grainpayapi.dtos.ExpenseDTO;
+import dev.deyve.grainpayapi.exceptions.ExpenseNotFoundException;
 import dev.deyve.grainpayapi.mappers.ExpenseMapper;
 import dev.deyve.grainpayapi.models.Expense;
 import dev.deyve.grainpayapi.repositories.ExpenseRepository;
@@ -60,8 +61,9 @@ public class ExpenseService {
      * @param id Long
      * @return ExpenseDTO
      */
-    public ExpenseDTO findExpenseById(Long id) {
-        Expense expense = expenseRepository.findById(id).orElseThrow();
+    public ExpenseDTO findExpenseById(Long id) throws Throwable {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ExpenseNotFoundException("Expense not found!"));
 
         logger.debug("GRAIN-API: Expense: {}", expense);
 
@@ -79,7 +81,7 @@ public class ExpenseService {
 
         checkId(id, expenseDTO);
 
-        expenseRepository.findById(id).orElseThrow();
+        expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found!"));
 
         Expense expense = expenseMapper.toEntity(expenseDTO);
         expense.setId(id); // TODO check if this is necessary
@@ -100,7 +102,7 @@ public class ExpenseService {
 
         logger.debug("GRAIN-API: Expense Deleted Id: {}", id);
 
-        expenseRepository.findById(id).orElseThrow();
+        expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found!"));
 
         expenseRepository.deleteById(id);
     }

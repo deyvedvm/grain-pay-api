@@ -1,0 +1,2 @@
+
+ALTER TABLE expense ALTER COLUMN updated_at SET NOT NULL;

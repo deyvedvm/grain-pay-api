@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GrainPayExceptionHandler {
 
-    @ExceptionHandler(value = {NotFoundException.class})
-    public ResponseEntity<GrainPayError> handleBookmarkNotFoundException(NotFoundException notFoundException) {
+    @ExceptionHandler(value = {ExpenseNotFoundException.class})
+    public ResponseEntity<GrainPayError> handleExpenseNotFoundException(ExpenseNotFoundException expenseNotFoundException) {
 
-        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+        HttpStatus badRequest = HttpStatus.NOT_FOUND;
 
         GrainPayError grainPayError = new GrainPayError(
-                notFoundException.getMessage(),
+                expenseNotFoundException.getMessage(),
                 badRequest,
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
@@ -47,7 +47,7 @@ public class GrainPayExceptionHandler {
     }
 
     @ExceptionHandler(value = {IllegalArgumentException.class})
-    public ResponseEntity<GrainPayError> handleNoSuchElementException(IllegalArgumentException illegalArgumentException) {
+    public ResponseEntity<GrainPayError> handleIllegalArgumentException(IllegalArgumentException illegalArgumentException) {
 
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
 
@@ -62,7 +62,7 @@ public class GrainPayExceptionHandler {
     }
 
     @ExceptionHandler(value = {BadRequestException.class})
-    public ResponseEntity<GrainPayError> handleNoSuchElementException(BadRequestException badRequestException) {
+    public ResponseEntity<GrainPayError> handleBadRequestException(BadRequestException badRequestException) {
 
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
 
@@ -113,7 +113,7 @@ public class GrainPayExceptionHandler {
     }
 
     @ExceptionHandler(value = {InternalServerError.class})
-    public ResponseEntity<GrainPayError> handleNoSuchElementException(InternalServerError internalServerError) {
+    public ResponseEntity<GrainPayError> handleInternalServerError(InternalServerError internalServerError) {
 
         HttpStatus serverError = HttpStatus.INTERNAL_SERVER_ERROR;
 

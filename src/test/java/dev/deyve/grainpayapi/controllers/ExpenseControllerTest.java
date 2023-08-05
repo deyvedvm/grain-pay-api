@@ -91,7 +91,7 @@ class ExpenseControllerTest {
 
     @Test
     @DisplayName("Should return a expense by id")
-    void shouldReturnExpenseById() throws Exception {
+    void shouldReturnExpenseById() throws Throwable {
 
         ExpenseDTO mockExpenseDTO = buildExpenseDTO().build();
 

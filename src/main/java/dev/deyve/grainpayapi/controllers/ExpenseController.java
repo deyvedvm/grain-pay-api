@@ -40,7 +40,7 @@ public class ExpenseController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
 
-        logger.debug("GRAIN-API: Find expenses by page {}, size {} and sort {}", page, size, sort);
+        logger.info("GRAIN-API: Find expenses by page {}, size {} and sort {}", page, size, sort);
 
         Page<ExpenseDTO> expenses = expenseService.findExpenses(pageable);
 
@@ -70,9 +70,9 @@ public class ExpenseController {
      * @return ResponseEntity
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseDTO> getExpense(@PathVariable Long id) {
+    public ResponseEntity<ExpenseDTO> getExpense(@PathVariable Long id) throws Throwable {
 
-        logger.info("GRAIN-API: Get expense by id [{}]", id);
+        logger.info("GRAIN-API: Get expense by id {}", id);
 
         ExpenseDTO expenseDTO = expenseService.findExpenseById(id);
 
@@ -89,7 +89,7 @@ public class ExpenseController {
     @PutMapping("/{id}")
     public ResponseEntity<ExpenseDTO> putExpense(@PathVariable Long id, @Valid @RequestBody ExpenseDTO expenseDTO) {
 
-        logger.info("GRAIN-API: Update expense by id [{}]", id);
+        logger.info("GRAIN-API: Update expense by id {}", id);
 
         ExpenseDTO updatedExpenseDTO = expenseService.updateExpenseById(id, expenseDTO);
 
@@ -105,7 +105,7 @@ public class ExpenseController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
-        logger.info("GRAIN-API: Delete expense by id [{}]", id);
+        logger.info("GRAIN-API: Delete expense by id {}", id);
 
         expenseService.deleteExpenseById(id);
 

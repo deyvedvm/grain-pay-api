@@ -86,7 +86,7 @@ class ExpenseServiceTest {
 
     @Test
     @DisplayName("Should find expense by id")
-    void shouldFindExpenseById() {
+    void shouldFindExpenseById() throws Throwable {
         // Arrange
         Long id = 1L;
         ExpenseDTO expenseDTO = buildExpenseDTO().build();
