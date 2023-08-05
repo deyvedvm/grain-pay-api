@@ -3,21 +3,20 @@ package dev.deyve.grainpayapi.dtos;
 import dev.deyve.grainpayapi.models.PaymentType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ExpenseDTO {
 
-    @EqualsAndHashCode.Include
     private Long id;
 
     @NotBlank(message = "Description cannot be empty")

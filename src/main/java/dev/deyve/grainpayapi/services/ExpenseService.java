@@ -82,7 +82,7 @@ public class ExpenseService {
         expenseRepository.findById(id).orElseThrow();
 
         Expense expense = expenseMapper.toEntity(expenseDTO);
-        expense.setId(id);
+        expense.setId(id); // TODO check if this is necessary
 
         Expense expenseUpdated = expenseRepository.save(expense);
 
