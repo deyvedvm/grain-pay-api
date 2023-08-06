@@ -17,7 +17,7 @@ import java.util.Objects;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class Income {
+public class Income extends Auditable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
