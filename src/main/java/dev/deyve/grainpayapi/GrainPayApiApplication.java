@@ -11,7 +11,6 @@ import java.net.InetAddress;
 import java.util.Objects;
 
 @SpringBootApplication
-@EnableJpaAuditing
 public class GrainPayApiApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(GrainPayApiApplication.class);
