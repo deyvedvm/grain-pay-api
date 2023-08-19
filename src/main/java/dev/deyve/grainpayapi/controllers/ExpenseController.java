@@ -40,7 +40,7 @@ public class ExpenseController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
 
-        logger.info("GRAIN-API: Find expenses by page {}, size {} and sort {}", page, size, sort);
+        logger.info("GRAIN-API: Find expenses by page {}, size {} and sort by {}", page, size, sort);
 
         Page<ExpenseDTO> expenses = expenseService.findExpenses(pageable);
 
