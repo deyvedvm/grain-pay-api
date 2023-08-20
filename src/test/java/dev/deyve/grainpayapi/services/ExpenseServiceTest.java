@@ -54,7 +54,7 @@ class ExpenseServiceTest {
         when(expenseMapper.toDTO(expensePage.getContent().get(0))).thenReturn(expenseDTO);
 
         // Act
-        Page<ExpenseDTO> expenseDTOPageFound = expenseService.findExpenses(pageable);
+        Page<ExpenseDTO> expenseDTOPageFound = expenseService.findAll(pageable);
 
         // Assert
         assertEquals(expenseDTOPage, expenseDTOPageFound);
@@ -77,7 +77,7 @@ class ExpenseServiceTest {
         when(expenseMapper.toDTO(expenseSaved)).thenReturn(expenseDTO);
 
         // Act
-        ExpenseDTO expenseDTOSaved = expenseService.saveExpense(expenseDTO);
+        ExpenseDTO expenseDTOSaved = expenseService.save(expenseDTO);
 
         // Assert
         assertEquals(expenseDTO, expenseDTOSaved);
@@ -96,7 +96,7 @@ class ExpenseServiceTest {
         when(expenseMapper.toDTO(expense)).thenReturn(expenseDTO);
 
         // Act
-        ExpenseDTO expenseDTOFound = expenseService.findExpenseById(id);
+        ExpenseDTO expenseDTOFound = expenseService.findById(id);
 
         // Assert
         assertEquals(expenseDTO, expenseDTOFound);
@@ -120,7 +120,7 @@ class ExpenseServiceTest {
         when(expenseMapper.toDTO(expenseSaved)).thenReturn(expenseDTO);
 
         // Act
-        ExpenseDTO updatedExpenseById = expenseService.updateExpenseById(id, expenseDTO);
+        ExpenseDTO updatedExpenseById = expenseService.updateById(id, expenseDTO);
 
         // Assert
         assertEquals(updatedExpenseById, expenseDTO);
@@ -138,7 +138,7 @@ class ExpenseServiceTest {
         when(expenseRepository.findById(id)).thenReturn(Optional.of(buildExpense().build()));
 
         // Act
-        expenseService.deleteExpenseById(id);
+        expenseService.deleteById(id);
 
         // Assert
         verify(expenseRepository).deleteById(id);
@@ -152,7 +152,7 @@ class ExpenseServiceTest {
         when(expenseRepository.findById(id)).thenThrow(new NoSuchElementException("No value present"));
 
         // Act and Assert
-        assertThrows(NoSuchElementException.class, () -> expenseService.deleteExpenseById(id));
+        assertThrows(NoSuchElementException.class, () -> expenseService.deleteById(id));
 
     }
 }

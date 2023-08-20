@@ -5,33 +5,29 @@ import dev.deyve.grainpayapi.exceptions.ExpenseNotFoundException;
 import dev.deyve.grainpayapi.mappers.ExpenseMapper;
 import dev.deyve.grainpayapi.models.Expense;
 import dev.deyve.grainpayapi.repositories.ExpenseRepository;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ExpenseService {
+@AllArgsConstructor
+public class ExpenseService implements IService<ExpenseDTO> {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpenseService.class);
 
     private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
 
-    @Autowired
-    public ExpenseService(ExpenseRepository expenseRepository, ExpenseMapper expenseMapper) {
-        this.expenseRepository = expenseRepository;
-        this.expenseMapper = expenseMapper;
-    }
-
     /**
      * Find All Expenses
      *
      * @return Page of ExpenseDTO
      */
-    public Page<ExpenseDTO> findExpenses(Pageable pageable) {
+    @Override
+    public Page<ExpenseDTO> findAll(Pageable pageable) {
         Page<Expense> expenses = expenseRepository.findAll(pageable);
 
         logger.debug("GRAIN-API: Expenses: {}", expenses);
@@ -45,7 +41,8 @@ public class ExpenseService {
      * @param expenseDTO ExpenseDTO
      * @return ExpenseDTO
      */
-    public ExpenseDTO saveExpense(ExpenseDTO expenseDTO) {
+    @Override
+    public ExpenseDTO save(ExpenseDTO expenseDTO) {
         Expense expense = expenseMapper.toEntity(expenseDTO);
 
         Expense expenseSaved = expenseRepository.save(expense);
@@ -61,7 +58,8 @@ public class ExpenseService {
      * @param id Long
      * @return ExpenseDTO
      */
-    public ExpenseDTO findExpenseById(Long id) throws Throwable {
+    @Override
+    public ExpenseDTO findById(Long id) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new ExpenseNotFoundException("Expense not found!"));
 
@@ -77,7 +75,8 @@ public class ExpenseService {
      * @param expenseDTO ExpenseDTO
      * @return ExpenseDTO
      */
-    public ExpenseDTO updateExpenseById(Long id, ExpenseDTO expenseDTO) {
+    @Override
+    public ExpenseDTO updateById(Long id, ExpenseDTO expenseDTO) {
 
         checkId(id, expenseDTO);
 
@@ -97,7 +96,8 @@ public class ExpenseService {
      *
      * @param id Long
      */
-    public void deleteExpenseById(Long id) {
+    @Override
+    public void deleteById(Long id) {
 
         logger.debug("GRAIN-API: Expense Deleted Id: {}", id);
 

@@ -47,7 +47,7 @@ class ExpenseControllerTest {
 
         Page<ExpenseDTO> mockExpensesPage = new PageImpl<>(mockExpenseDTOS);
 
-        when(expenseService.findExpenses(pageable)).thenReturn(mockExpensesPage);
+        when(expenseService.findAll(pageable)).thenReturn(mockExpensesPage);
 
         mockMvc.perform(get("/api/expenses")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -58,7 +58,7 @@ class ExpenseControllerTest {
                 .andExpect(jsonPath("$[0].date").value("2023-04-01T00:00:00"))
                 .andExpect(jsonPath("$[0].paymentType").value(PaymentType.MONEY.getDescription()));
 
-        verify(expenseService, times(1)).findExpenses(pageable);
+        verify(expenseService, times(1)).findAll(pageable);
     }
 
     @Test
@@ -72,7 +72,7 @@ class ExpenseControllerTest {
         savedExpenseDTO.setCreatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));
         savedExpenseDTO.setUpdatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));
 
-        when(expenseService.saveExpense(mockExpenseDTO)).thenReturn(savedExpenseDTO);
+        when(expenseService.save(mockExpenseDTO)).thenReturn(savedExpenseDTO);
 
         mockMvc.perform(post("/api/expenses")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -86,7 +86,7 @@ class ExpenseControllerTest {
                 .andExpect(jsonPath("$.createdAt").value("2023-04-01T00:00:00"))
                 .andExpect(jsonPath("$.updatedAt").value("2023-04-01T00:00:00"));
 
-        verify(expenseService, times(1)).saveExpense(mockExpenseDTO);
+        verify(expenseService, times(1)).save(mockExpenseDTO);
     }
 
     @Test
@@ -97,7 +97,7 @@ class ExpenseControllerTest {
 
         Long mockId = mockExpenseDTO.getId();
 
-        when(expenseService.findExpenseById(mockId)).thenReturn(mockExpenseDTO);
+        when(expenseService.findById(mockId)).thenReturn(mockExpenseDTO);
 
         mockMvc.perform(get("/api/expenses/{id}", mockId)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -107,7 +107,7 @@ class ExpenseControllerTest {
                 .andExpect(jsonPath("$.date").value("2023-04-01T00:00:00"))
                 .andExpect(jsonPath("$.paymentType").value(mockExpenseDTO.getPaymentType().getDescription()));
 
-        verify(expenseService, times(1)).findExpenseById(mockId);
+        verify(expenseService, times(1)).findById(mockId);
     }
 
     @Test
@@ -122,7 +122,7 @@ class ExpenseControllerTest {
         updatedExpenseDTO.setCreatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));
         updatedExpenseDTO.setUpdatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));
 
-        when(expenseService.updateExpenseById(mockId, mockExpenseDTO)).thenReturn(updatedExpenseDTO);
+        when(expenseService.updateById(mockId, mockExpenseDTO)).thenReturn(updatedExpenseDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/expenses/{id}", mockId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -136,7 +136,7 @@ class ExpenseControllerTest {
                 .andExpect(jsonPath("$.createdAt").value("2023-04-01T00:00:00"))
                 .andExpect(jsonPath("$.updatedAt").value("2023-04-01T00:00:00"));
 
-        verify(expenseService, times(1)).updateExpenseById(mockId, mockExpenseDTO);
+        verify(expenseService, times(1)).updateById(mockId, mockExpenseDTO);
     }
 
     @Test
@@ -144,13 +144,13 @@ class ExpenseControllerTest {
     void shouldDeleteExpenseAndReturnNoContent() throws Exception {
         Long mockId = 1L;
 
-        doNothing().when(expenseService).deleteExpenseById(mockId);
+        doNothing().when(expenseService).deleteById(mockId);
 
         mockMvc.perform(delete("/api/expenses/{id}", mockId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        verify(expenseService, times(1)).deleteExpenseById(1L);
+        verify(expenseService, times(1)).deleteById(1L);
     }
 
 }

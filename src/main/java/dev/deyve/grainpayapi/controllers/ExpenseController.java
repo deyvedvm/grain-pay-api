@@ -3,6 +3,7 @@ package dev.deyve.grainpayapi.controllers;
 import dev.deyve.grainpayapi.dtos.ExpenseDTO;
 import dev.deyve.grainpayapi.services.ExpenseService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -17,23 +18,21 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/expenses")
-public class ExpenseController {
+@AllArgsConstructor
+public class ExpenseController implements IController<ExpenseDTO> {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpenseController.class);
 
     private final ExpenseService expenseService;
-
-    public ExpenseController(ExpenseService expenseService) {
-        this.expenseService = expenseService;
-    }
 
     /**
      * Get Expenses by Page
      *
      * @return List<ExpenseDTO> List of Expenses
      */
+    @Override
     @GetMapping
-    public ResponseEntity<List<ExpenseDTO>> findExpenses(
+    public ResponseEntity<List<ExpenseDTO>> findAll(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(defaultValue = "id") String sort) {
@@ -42,7 +41,7 @@ public class ExpenseController {
 
         logger.info("GRAIN-API: Find expenses by page {}, size {} and sort by {}", page, size, sort);
 
-        Page<ExpenseDTO> expenses = expenseService.findExpenses(pageable);
+        Page<ExpenseDTO> expenses = expenseService.findAll(pageable);
 
         return new ResponseEntity<>(expenses.getContent(), HttpStatus.OK);
     }
@@ -53,12 +52,13 @@ public class ExpenseController {
      * @param expenseDTO New Expense
      * @return ResponseEntity
      */
+    @Override
     @PostMapping
-    public ResponseEntity<ExpenseDTO> postExpense(@Valid @RequestBody ExpenseDTO expenseDTO) {
+    public ResponseEntity<ExpenseDTO> post(@Valid @RequestBody ExpenseDTO expenseDTO) {
 
         logger.info("GRAIN-API: Save expense: {}", expenseDTO);
 
-        ExpenseDTO expense = expenseService.saveExpense(expenseDTO);
+        ExpenseDTO expense = expenseService.save(expenseDTO);
 
         return new ResponseEntity<>(expense, HttpStatus.CREATED);
     }
@@ -69,12 +69,13 @@ public class ExpenseController {
      * @param id Expense Id
      * @return ResponseEntity
      */
+    @Override
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseDTO> getExpense(@PathVariable Long id) throws Throwable {
+    public ResponseEntity<ExpenseDTO> get(@PathVariable Long id) throws Throwable {
 
         logger.info("GRAIN-API: Get expense by id {}", id);
 
-        ExpenseDTO expenseDTO = expenseService.findExpenseById(id);
+        ExpenseDTO expenseDTO = expenseService.findById(id);
 
         return new ResponseEntity<>(expenseDTO, HttpStatus.OK);
     }
@@ -86,12 +87,13 @@ public class ExpenseController {
      * @param expenseDTO Expense
      * @return ResponseEntity
      */
+    @Override
     @PutMapping("/{id}")
-    public ResponseEntity<ExpenseDTO> putExpense(@PathVariable Long id, @Valid @RequestBody ExpenseDTO expenseDTO) {
+    public ResponseEntity<ExpenseDTO> put(@PathVariable Long id, @Valid @RequestBody ExpenseDTO expenseDTO) {
 
         logger.info("GRAIN-API: Update expense by id {}", id);
 
-        ExpenseDTO updatedExpenseDTO = expenseService.updateExpenseById(id, expenseDTO);
+        ExpenseDTO updatedExpenseDTO = expenseService.updateById(id, expenseDTO);
 
         return new ResponseEntity<>(updatedExpenseDTO, HttpStatus.OK);
 
@@ -103,12 +105,14 @@ public class ExpenseController {
      * @param id Expense Id
      * @return ResponseEntity
      */
+    @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         logger.info("GRAIN-API: Delete expense by id {}", id);
 
-        expenseService.deleteExpenseById(id);
+        expenseService.deleteById(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 }
