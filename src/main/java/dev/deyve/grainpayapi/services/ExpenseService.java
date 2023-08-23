@@ -114,7 +114,7 @@ public class ExpenseService implements IService<ExpenseDTO> {
      */
     private void checkId(Long id, ExpenseDTO expenseDTO) {
         if (!id.equals(expenseDTO.getId())) {
-            throw new IllegalArgumentException("Id is not the same");
+            throw new IllegalArgumentException("Id mismatch");
         }
     }
 

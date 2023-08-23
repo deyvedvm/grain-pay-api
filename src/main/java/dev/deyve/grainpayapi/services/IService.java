@@ -14,4 +14,5 @@ public interface IService<T> {
     public T updateById(Long id, T t);
 
     void deleteById(Long id);
+
 }

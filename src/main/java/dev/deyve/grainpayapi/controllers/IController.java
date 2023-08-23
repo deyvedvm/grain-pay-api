@@ -17,7 +17,7 @@ public interface IController<T> {
 
     ResponseEntity<T> post(@Valid @RequestBody T t);
 
-    ResponseEntity<T> get(@PathVariable Long id) throws Throwable;
+    ResponseEntity<T> get(@PathVariable Long id);
 
     ResponseEntity<T> put(@PathVariable Long id, @Valid @RequestBody T t);
 

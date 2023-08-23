@@ -71,7 +71,7 @@ public class ExpenseController implements IController<ExpenseDTO> {
      */
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseDTO> get(@PathVariable Long id) throws Throwable {
+    public ResponseEntity<ExpenseDTO> get(@PathVariable Long id) {
 
         logger.info("GRAIN-API: Get expense by id {}", id);
 
@@ -108,6 +108,7 @@ public class ExpenseController implements IController<ExpenseDTO> {
     @Override
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+
         logger.info("GRAIN-API: Delete expense by id {}", id);
 
         expenseService.deleteById(id);

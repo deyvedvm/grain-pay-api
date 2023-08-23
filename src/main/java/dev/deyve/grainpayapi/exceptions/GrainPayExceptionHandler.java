@@ -31,6 +31,21 @@ public class GrainPayExceptionHandler {
         return new ResponseEntity<>(grainPayError, badRequest);
     }
 
+    @ExceptionHandler(value = {IncomeNotFoundException.class})
+    public ResponseEntity<GrainPayError> handleIncomeNotFoundException(IncomeNotFoundException incomeNotFoundException) {
+
+        HttpStatus badRequest = HttpStatus.NOT_FOUND;
+
+        GrainPayError grainPayError = new GrainPayError(
+                incomeNotFoundException.getMessage(),
+                badRequest,
+                List.of(),
+                ZonedDateTime.now(ZoneId.of("Z"))
+        );
+
+        return new ResponseEntity<>(grainPayError, badRequest);
+    }
+
     @ExceptionHandler(value = {NoSuchElementException.class})
     public ResponseEntity<GrainPayError> handleNoSuchElementException(NoSuchElementException noSuchElementException) {
 
