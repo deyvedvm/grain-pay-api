@@ -103,6 +103,17 @@ class ExpenseServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw ExpenseNotFoundException when find expense by id")
+    void shouldThrowExceptionWhenFindExpenseById() {
+        // Arrange
+        Long id = 3L;
+        when(expenseRepository.findById(id)).thenThrow(new ExpenseNotFoundException("Expense not found!"));
+
+        // Act and Assert
+        assertThrows(ExpenseNotFoundException.class, () -> expenseService.findById(id));
+    }
+
+    @Test
     @DisplayName("Should update expense by id")
     void shouldUpdateExpenseById() {
         // Arrange

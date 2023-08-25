@@ -105,6 +105,16 @@ class IncomeServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw IncomeNotFoundException when find income by id")
+    void shouldThrowExceptionWhenFindIncomeById() {
+        // Arrange
+        when(incomeRepository.findById(3L)).thenReturn(Optional.empty());
+
+        // Act and Assert
+        assertThrows(IncomeNotFoundException.class, () -> incomeService.findById(3L));
+    }
+
+    @Test
     @DisplayName("Should update income by id")
     void shouldUpdateIncomeById() {
         // Arrange
