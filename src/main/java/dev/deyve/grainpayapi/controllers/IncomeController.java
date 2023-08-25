@@ -2,6 +2,7 @@ package dev.deyve.grainpayapi.controllers;
 
 import dev.deyve.grainpayapi.dtos.IncomeDTO;
 import dev.deyve.grainpayapi.services.IService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,7 +31,11 @@ public class IncomeController implements IController<IncomeDTO> {
      * @return List<IncomeDTO> List of Incomes
      */
     @Override
-    public ResponseEntity<List<IncomeDTO>> findAll(Integer page, Integer size, String sort) {
+    @GetMapping
+    public ResponseEntity<List<IncomeDTO>> findAll(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "id") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
 
         logger.info("GRAIN-API: Find incomes by page {}, size {} and sort by {}", page, size, sort);
@@ -48,7 +52,8 @@ public class IncomeController implements IController<IncomeDTO> {
      * @return ResponseEntity
      */
     @Override
-    public ResponseEntity<IncomeDTO> post(IncomeDTO incomeDTO) {
+    @PostMapping
+    public ResponseEntity<IncomeDTO> post(@Valid @RequestBody IncomeDTO incomeDTO) {
 
         logger.info("GRAIN-API: Save income: {}", incomeDTO);
 
@@ -64,7 +69,8 @@ public class IncomeController implements IController<IncomeDTO> {
      * @return ResponseEntity
      */
     @Override
-    public ResponseEntity<IncomeDTO> get(Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<IncomeDTO> get(@PathVariable Long id) {
 
         logger.info("GRAIN-API: Get income by id: {}", id);
 
@@ -81,7 +87,8 @@ public class IncomeController implements IController<IncomeDTO> {
      * @return ResponseEntity
      */
     @Override
-    public ResponseEntity<IncomeDTO> put(Long id, IncomeDTO incomeDTO) {
+    @PutMapping("/{id}")
+    public ResponseEntity<IncomeDTO> put(@PathVariable Long id, @Valid @RequestBody IncomeDTO incomeDTO) {
 
         logger.info("GRAIN-API: Update income by id: {}", id);
 
@@ -97,7 +104,8 @@ public class IncomeController implements IController<IncomeDTO> {
      * @return ResponseEntity
      */
     @Override
-    public ResponseEntity<Void> delete(Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
 
         logger.info("GRAIN-API: Delete income by id: {}", id);
 

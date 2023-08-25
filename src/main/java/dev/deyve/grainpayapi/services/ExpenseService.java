@@ -99,7 +99,7 @@ public class ExpenseService implements IService<ExpenseDTO> {
     @Override
     public void deleteById(Long id) {
 
-        logger.debug("GRAIN-API: Expense Deleted Id: {}", id);
+        logger.debug("GRAIN-API: Expense Deleted by Id: {}", id);
 
         expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found!"));
 

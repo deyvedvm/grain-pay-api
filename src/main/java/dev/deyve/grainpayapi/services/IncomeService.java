@@ -82,6 +82,8 @@ public class IncomeService implements IService<IncomeDTO> {
 
         checkId(id, incomeDTO);
 
+        incomeRepository.findById(id).orElseThrow(() -> new IncomeNotFoundException("Income not found!"));
+
         Income income = incomeMapper.toEntity(incomeDTO);
 
         Income incomeUpdated = incomeRepository.save(income);

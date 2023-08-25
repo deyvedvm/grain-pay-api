@@ -1,6 +1,7 @@
 package dev.deyve.grainpayapi.services;
 
 import dev.deyve.grainpayapi.dtos.ExpenseDTO;
+import dev.deyve.grainpayapi.exceptions.ExpenseNotFoundException;
 import dev.deyve.grainpayapi.mappers.ExpenseMapper;
 import dev.deyve.grainpayapi.models.Expense;
 import dev.deyve.grainpayapi.repositories.ExpenseRepository;
@@ -21,7 +22,6 @@ import static dev.deyve.grainpayapi.dummies.ExpenseDTODummy.buildExpenseDTO;
 import static dev.deyve.grainpayapi.dummies.ExpenseDummy.buildExpense;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +68,6 @@ class ExpenseServiceTest {
         Expense expense = buildExpense().build();
 
         Expense expenseSaved = buildExpense().build();
-        expenseSaved.setCreatedAt(LocalDateTime.of(2021, 1, 1, 0, 0, 0));
 
         ExpenseDTO expenseDTO = buildExpenseDTO().build();
 
@@ -81,7 +80,7 @@ class ExpenseServiceTest {
 
         // Assert
         assertEquals(expenseDTO, expenseDTOSaved);
-        then(expenseRepository).should().save(expense);
+        verify(expenseRepository).save(expense);
     }
 
     @Test
@@ -131,6 +130,16 @@ class ExpenseServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw IllegalArgumentException when update expense by id")
+    void sholdThrowExceptionWhenUpdateExpenseById() {
+        // Arrange
+        ExpenseDTO expenseDTO = buildExpenseDTO().build();
+
+        // Act and Assert
+        assertThrows(IllegalArgumentException.class, () -> expenseService.updateById(2L, expenseDTO));
+    }
+
+    @Test
     @DisplayName("Should delete expense by id")
     void shouldDeleteExpenseById() {
         // Arrange
@@ -149,10 +158,10 @@ class ExpenseServiceTest {
     void shouldThrowExceptionWhenDeleteExpenseById() {
         // Arrange
         Long id = 1L;
-        when(expenseRepository.findById(id)).thenThrow(new NoSuchElementException("No value present"));
+        when(expenseRepository.findById(id)).thenThrow(new ExpenseNotFoundException("No value present"));
 
         // Act and Assert
-        assertThrows(NoSuchElementException.class, () -> expenseService.deleteById(id));
+        assertThrows(ExpenseNotFoundException.class, () -> expenseService.deleteById(id));
 
     }
 }

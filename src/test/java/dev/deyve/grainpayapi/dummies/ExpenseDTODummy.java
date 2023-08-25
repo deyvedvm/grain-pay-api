@@ -14,6 +14,8 @@ public class ExpenseDTODummy {
                 .description("Mock description")
                 .amount(BigDecimal.TEN)
                 .date(LocalDateTime.of(2023, 4, 1, 0, 0))
-                .paymentType(PaymentType.MONEY);
+                .paymentType(PaymentType.MONEY)
+                .createdAt(LocalDateTime.of(2023, 4, 1, 0, 0))
+                .updatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));
     }
 }
