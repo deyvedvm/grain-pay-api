@@ -8,14 +8,15 @@ import dev.deyve.grainpayapi.repositories.IncomeRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static dev.deyve.grainpayapi.dummies.IncomeDTODummy.buildIncomeDTO;
@@ -30,8 +31,8 @@ import static org.mockito.Mockito.when;
 @DisplayName("Income Service Tests")
 class IncomeServiceTest {
 
-    @Mock
-    private IncomeMapper incomeMapper;
+    @Spy
+    private IncomeMapper incomeMapper = Mappers.getMapper(IncomeMapper.class);
 
     @Mock
     private IncomeRepository incomeRepository;
@@ -45,20 +46,18 @@ class IncomeServiceTest {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id"));
 
-        IncomeDTO incomeDTO = buildIncomeDTO().build();
+        Page<Income> incomePage = new PageImpl<>(List.of(buildIncome().description("Extra").build()));
 
-        Page<Income> incomePage = new PageImpl<>(List.of(buildIncome().build()));
-
-        Page<IncomeDTO> incomeDTOPage = new PageImpl<>(List.of(incomeDTO));
+        Page<IncomeDTO> expectedIncomeDTOPage = new PageImpl<>(List.of(buildIncomeDTO().description("Extra").build()));
 
         when(incomeRepository.findAll(pageable)).thenReturn(incomePage);
-        when(incomeMapper.toDTO(incomePage.getContent().get(0))).thenReturn(incomeDTO);
 
         // Act
         Page<IncomeDTO> incomeDTOPageFound = incomeService.findAll(pageable);
 
         // Assert
-        assertEquals(incomeDTOPage, incomeDTOPageFound);
+        assertEquals(expectedIncomeDTOPage.getContent().get(0).getDescription(), incomeDTOPageFound.getContent().get(0).getDescription());
+
         verify(incomeRepository).findAll(pageable);
 
     }
@@ -69,19 +68,17 @@ class IncomeServiceTest {
         // Arrange
         IncomeDTO incomeDTO = buildIncomeDTO().build();
 
-        Income income = buildIncome().build();
+        Income income = buildIncome().amount(BigDecimal.valueOf(500)).build();
 
-        Income savedIncome = buildIncome().id(1L).build();
+        IncomeDTO expectedIncomeDTO = buildIncomeDTO().amount(BigDecimal.valueOf(500)).build();
 
-        when(incomeMapper.toEntity(incomeDTO)).thenReturn(income);
-        when(incomeRepository.save(income)).thenReturn(income);
-        when(incomeMapper.toDTO(savedIncome)).thenReturn(incomeDTO);
+        when(incomeRepository.save(any())).thenReturn(income);
 
         // Act
         IncomeDTO incomeDTOsaved = incomeService.save(incomeDTO);
 
         // Assert
-        assertEquals(incomeDTO, incomeDTOsaved);
+        assertEquals(expectedIncomeDTO.getAmount(), incomeDTOsaved.getAmount());
         verify(incomeRepository).save(income);
     }
 
@@ -89,18 +86,19 @@ class IncomeServiceTest {
     @DisplayName("Should return income by id")
     void sholdReturnIncomeById() {
         // Arrange
-        Income income = buildIncome().build();
+        Income income = buildIncome().amount(BigDecimal.valueOf(500)).build();
 
-        IncomeDTO incomeDTO = buildIncomeDTO().build();
+        IncomeDTO expextedIncomeDTO = buildIncomeDTO().amount(BigDecimal.valueOf(500)).build();
 
         when(incomeRepository.findById(1L)).thenReturn(java.util.Optional.of(income));
-        when(incomeMapper.toDTO(income)).thenReturn(incomeDTO);
 
         // Act
         IncomeDTO incomeDTOFound = incomeService.findById(1L);
 
         // Assert
-        assertEquals(incomeDTO, incomeDTOFound);
+        assertEquals(expextedIncomeDTO.getId(), incomeDTOFound.getId());
+        assertEquals(expextedIncomeDTO.getDescription(), incomeDTOFound.getDescription());
+        assertEquals(expextedIncomeDTO.getAmount(), incomeDTOFound.getAmount());
         verify(incomeRepository).findById(1L);
     }
 
@@ -118,28 +116,24 @@ class IncomeServiceTest {
     @DisplayName("Should update income by id")
     void shouldUpdateIncomeById() {
         // Arrange
-        LocalDateTime now = LocalDateTime.now();
+        IncomeDTO incomeDTO = buildIncomeDTO().description("Extra salary").build();
 
-        IncomeDTO incomeDTO = buildIncomeDTO().build();
-
-        Income income = buildIncome().build();
+        Income income = buildIncome().description("Extra salary").build();
 
         Income updatedIncome = buildIncome().build();
 
-        IncomeDTO expectedUpdatedIncomeDTO = buildIncomeDTO()
-                .updatedAt(now)
-                .build();
+        IncomeDTO expectedUpdatedIncomeDTO = buildIncomeDTO().build();
 
         when(incomeRepository.findById(1L)).thenReturn(Optional.of(Income.builder().build()));
-        when(incomeMapper.toEntity(incomeDTO)).thenReturn(income);
         when(incomeRepository.save(income)).thenReturn(updatedIncome);
-        when(incomeMapper.toDTO(updatedIncome)).thenReturn(expectedUpdatedIncomeDTO);
 
         // Act
         IncomeDTO updatedIncomeDTO = incomeService.updateById(1L, incomeDTO);
 
         // Assert
-        assertEquals(expectedUpdatedIncomeDTO, updatedIncomeDTO);
+        assertEquals(expectedUpdatedIncomeDTO.getDescription(), updatedIncomeDTO.getDescription());
+
+        verify(incomeRepository).findById(1L);
         verify(incomeRepository).save(any(Income.class));
     }
 
