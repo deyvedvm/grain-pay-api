@@ -3,7 +3,6 @@ package dev.deyve.grainpayapi.controllers;
 import dev.deyve.grainpayapi.dtos.IncomeDTO;
 import dev.deyve.grainpayapi.services.IService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -17,13 +16,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api/incomes")
 public class IncomeController implements IController<IncomeDTO> {
 
     private static final Logger logger = LoggerFactory.getLogger(IncomeController.class);
 
     private final IService<IncomeDTO> incomeService;
+
+    public IncomeController(IService<IncomeDTO> incomeService) {
+        this.incomeService = incomeService;
+    }
 
     /**
      * Get Incomes by Page

@@ -40,7 +40,7 @@ class IncomeControllerTest {
     void shouldFindAllIncomes() throws Exception {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id"));
 
-        List<IncomeDTO> mockIncomeDTOS = List.of(buildIncomeDTO().build());
+        List<IncomeDTO> mockIncomeDTOS = List.of(buildIncomeDTO());
 
         Page<IncomeDTO> mockIncomesPage = new PageImpl<>(mockIncomeDTOS);
 
@@ -63,9 +63,9 @@ class IncomeControllerTest {
     @Test
     @DisplayName("Should save a new income and return income saved")
     void shouldPostIncome() throws Exception {
-        IncomeDTO mockIncomeDTO = buildIncomeDTO().build();
+        IncomeDTO mockIncomeDTO = buildIncomeDTO();
 
-        IncomeDTO savedIncomeDTO = buildIncomeDTO().build();
+        IncomeDTO savedIncomeDTO = buildIncomeDTO();
         savedIncomeDTO.setDescription("Extra Salary");
 
         when(incomeService.save(mockIncomeDTO)).thenReturn(savedIncomeDTO);
@@ -87,7 +87,7 @@ class IncomeControllerTest {
     @DisplayName("Should return income by id")
     void shouldGetIncome() throws Exception {
 
-        IncomeDTO mockIncomeDTO = buildIncomeDTO().build();
+        IncomeDTO mockIncomeDTO = buildIncomeDTO();
 
         when(incomeService.findById(1L)).thenReturn(mockIncomeDTO);
 
@@ -108,9 +108,9 @@ class IncomeControllerTest {
     @DisplayName("Should update income by id")
     void shouldPutIncome() throws Exception {
 
-        IncomeDTO mockIncomeDTO = buildIncomeDTO().build();
+        IncomeDTO mockIncomeDTO = buildIncomeDTO();
 
-        IncomeDTO updatedIncomeDTO = buildIncomeDTO().build();
+        IncomeDTO updatedIncomeDTO = buildIncomeDTO();
         updatedIncomeDTO.setDescription("Extra Salary");
 
         when(incomeService.updateById(1L, mockIncomeDTO)).thenReturn(updatedIncomeDTO);
