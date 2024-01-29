@@ -5,7 +5,6 @@ import dev.deyve.grainpayapi.exceptions.IncomeNotFoundException;
 import dev.deyve.grainpayapi.mappers.IncomeMapper;
 import dev.deyve.grainpayapi.models.Income;
 import dev.deyve.grainpayapi.repositories.IncomeRepository;
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -13,13 +12,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 public class IncomeService implements IService<IncomeDTO> {
 
     private static final Logger logger = LoggerFactory.getLogger(IncomeService.class);
 
     private final IncomeMapper incomeMapper;
     private final IncomeRepository incomeRepository;
+
+    public IncomeService(IncomeMapper incomeMapper, IncomeRepository incomeRepository) {
+        this.incomeMapper = incomeMapper;
+        this.incomeRepository = incomeRepository;
+    }
 
     /**
      * Find All Incomes

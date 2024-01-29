@@ -8,14 +8,15 @@ import java.time.LocalDateTime;
 
 public class ExpenseDTODummy {
 
-    public static ExpenseDTO.ExpenseDTOBuilder buildExpenseDTO() {
-        return ExpenseDTO.builder()
-                .id(1L)
-                .description("Mock description")
-                .amount(BigDecimal.TEN)
-                .date(LocalDateTime.of(2023, 4, 1, 0, 0))
-                .paymentType(PaymentType.MONEY)
-                .createdAt(LocalDateTime.of(2023, 4, 1, 0, 0))
-                .updatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));
+    public static ExpenseDTO buildExpenseDTO() {
+        return new ExpenseDTO(
+                1L,
+                "Mock description",
+                BigDecimal.TEN,
+                LocalDateTime.of(2023, 4, 1, 0, 0),
+                PaymentType.MONEY,
+                LocalDateTime.of(2023, 4, 1, 0, 0),
+                LocalDateTime.of(2023, 4, 1, 0, 0)
+        );
     }
 }

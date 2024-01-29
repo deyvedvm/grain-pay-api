@@ -3,7 +3,6 @@ package dev.deyve.grainpayapi.controllers;
 import dev.deyve.grainpayapi.dtos.ExpenseDTO;
 import dev.deyve.grainpayapi.services.ExpenseService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -18,12 +17,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/expenses")
-@AllArgsConstructor
 public class ExpenseController implements IController<ExpenseDTO> {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpenseController.class);
 
     private final ExpenseService expenseService;
+
+    public ExpenseController(ExpenseService expenseService) {
+        this.expenseService = expenseService;
+    }
 
     /**
      * Get Expenses by Page

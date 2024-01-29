@@ -46,9 +46,9 @@ class IncomeServiceTest {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id"));
 
-        Page<Income> incomePage = new PageImpl<>(List.of(buildIncome().description("Extra").build()));
+        Page<Income> incomePage = new PageImpl<>(List.of(buildIncome("Extra")));
 
-        Page<IncomeDTO> expectedIncomeDTOPage = new PageImpl<>(List.of(buildIncomeDTO().description("Extra").build()));
+        Page<IncomeDTO> expectedIncomeDTOPage = new PageImpl<>(List.of(buildIncomeDTO("Extra")));
 
         when(incomeRepository.findAll(pageable)).thenReturn(incomePage);
 
@@ -66,11 +66,11 @@ class IncomeServiceTest {
     @DisplayName("Should save income")
     void shouldSaveIncome() {
         // Arrange
-        IncomeDTO incomeDTO = buildIncomeDTO().build();
+        IncomeDTO incomeDTO = buildIncomeDTO();
 
-        Income income = buildIncome().amount(BigDecimal.valueOf(500)).build();
+        Income income = buildIncome(BigDecimal.valueOf(500));
 
-        IncomeDTO expectedIncomeDTO = buildIncomeDTO().amount(BigDecimal.valueOf(500)).build();
+        IncomeDTO expectedIncomeDTO = buildIncomeDTO(BigDecimal.valueOf(500));
 
         when(incomeRepository.save(any())).thenReturn(income);
 
@@ -86,9 +86,9 @@ class IncomeServiceTest {
     @DisplayName("Should return income by id")
     void sholdReturnIncomeById() {
         // Arrange
-        Income income = buildIncome().amount(BigDecimal.valueOf(500)).build();
+        Income income = buildIncome(BigDecimal.valueOf(500));
 
-        IncomeDTO expextedIncomeDTO = buildIncomeDTO().amount(BigDecimal.valueOf(500)).build();
+        IncomeDTO expextedIncomeDTO = buildIncomeDTO(BigDecimal.valueOf(500));
 
         when(incomeRepository.findById(1L)).thenReturn(java.util.Optional.of(income));
 
@@ -116,15 +116,15 @@ class IncomeServiceTest {
     @DisplayName("Should update income by id")
     void shouldUpdateIncomeById() {
         // Arrange
-        IncomeDTO incomeDTO = buildIncomeDTO().description("Extra salary").build();
+        IncomeDTO incomeDTO = buildIncomeDTO("Extra salary");
 
-        Income income = buildIncome().description("Extra salary").build();
+        Income income = buildIncome("Extra salary");
 
-        Income updatedIncome = buildIncome().build();
+        Income updatedIncome = buildIncome();
 
-        IncomeDTO expectedUpdatedIncomeDTO = buildIncomeDTO().build();
+        IncomeDTO expectedUpdatedIncomeDTO = buildIncomeDTO();
 
-        when(incomeRepository.findById(1L)).thenReturn(Optional.of(Income.builder().build()));
+        when(incomeRepository.findById(1L)).thenReturn(Optional.of(new Income()));
         when(incomeRepository.save(income)).thenReturn(updatedIncome);
 
         // Act
@@ -141,7 +141,7 @@ class IncomeServiceTest {
     @DisplayName("Should throw IllegalArgumentException when update income by id")
     void shouldThrowExceptionWhenUpdateIncomeById() {
         // Arrange
-        IncomeDTO incomeDTO = buildIncomeDTO().build();
+        IncomeDTO incomeDTO = buildIncomeDTO();
 
         // Act and Assert
         assertThrows(IllegalArgumentException.class, () -> incomeService.updateById(2L, incomeDTO));
@@ -151,7 +151,7 @@ class IncomeServiceTest {
     @DisplayName("Should delete income by id")
     void shouldDeleteIncomeById() {
         // Arrange
-        when(incomeRepository.findById(1L)).thenReturn(Optional.of(Income.builder().build()));
+        when(incomeRepository.findById(1L)).thenReturn(Optional.of(new Income()));
 
         // Act
         incomeService.deleteById(1L);

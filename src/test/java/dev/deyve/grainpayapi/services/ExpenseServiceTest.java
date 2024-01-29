@@ -13,9 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static dev.deyve.grainpayapi.dummies.ExpenseDTODummy.buildExpenseDTO;
@@ -44,9 +42,9 @@ class ExpenseServiceTest {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id"));
 
-        ExpenseDTO expenseDTO = buildExpenseDTO().build();
+        ExpenseDTO expenseDTO = buildExpenseDTO();
 
-        Page<Expense> expensePage = new PageImpl<>(List.of(buildExpense().build()));
+        Page<Expense> expensePage = new PageImpl<>(List.of(buildExpense()));
 
         Page<ExpenseDTO> expenseDTOPage = new PageImpl<>(List.of(expenseDTO));
 
@@ -65,11 +63,11 @@ class ExpenseServiceTest {
     @DisplayName("Should save expense")
     void shouldSaveExpense() {
         // Arrange
-        Expense expense = buildExpense().build();
+        Expense expense = buildExpense();
 
-        Expense expenseSaved = buildExpense().build();
+        Expense expenseSaved = buildExpense();
 
-        ExpenseDTO expenseDTO = buildExpenseDTO().build();
+        ExpenseDTO expenseDTO = buildExpenseDTO();
 
         when(expenseMapper.toEntity(expenseDTO)).thenReturn(expense);
         when(expenseRepository.save(expense)).thenReturn(expenseSaved);
@@ -88,8 +86,8 @@ class ExpenseServiceTest {
     void shouldFindExpenseById() throws Throwable {
         // Arrange
         Long id = 1L;
-        ExpenseDTO expenseDTO = buildExpenseDTO().build();
-        Expense expense = buildExpense().build();
+        ExpenseDTO expenseDTO = buildExpenseDTO();
+        Expense expense = buildExpense();
 
         when(expenseRepository.findById(id)).thenReturn(Optional.of(expense));
         when(expenseMapper.toDTO(expense)).thenReturn(expenseDTO);
@@ -118,13 +116,13 @@ class ExpenseServiceTest {
     void shouldUpdateExpenseById() {
         // Arrange
         Long id = 1L;
-        ExpenseDTO expenseDTO = buildExpenseDTO().build();
+        ExpenseDTO expenseDTO = buildExpenseDTO();
 
-        Expense expense = buildExpense().build();
+        Expense expense = buildExpense();
 
-        Expense expenseSaved = buildExpense().build();
+        Expense expenseSaved = buildExpense();
 
-        when(expenseRepository.findById(id)).thenReturn(Optional.of(buildExpense().build()));
+        when(expenseRepository.findById(id)).thenReturn(Optional.of(buildExpense()));
         when(expenseMapper.toEntity(expenseDTO)).thenReturn(expense);
         when(expenseRepository.save(expense)).thenReturn(expenseSaved);
         when(expenseMapper.toDTO(expenseSaved)).thenReturn(expenseDTO);
@@ -144,7 +142,7 @@ class ExpenseServiceTest {
     @DisplayName("Should throw IllegalArgumentException when update expense by id")
     void sholdThrowExceptionWhenUpdateExpenseById() {
         // Arrange
-        ExpenseDTO expenseDTO = buildExpenseDTO().build();
+        ExpenseDTO expenseDTO = buildExpenseDTO();
 
         // Act and Assert
         assertThrows(IllegalArgumentException.class, () -> expenseService.updateById(2L, expenseDTO));
@@ -155,7 +153,7 @@ class ExpenseServiceTest {
     void shouldDeleteExpenseById() {
         // Arrange
         Long id = 1L;
-        when(expenseRepository.findById(id)).thenReturn(Optional.of(buildExpense().build()));
+        when(expenseRepository.findById(id)).thenReturn(Optional.of(buildExpense()));
 
         // Act
         expenseService.deleteById(id);

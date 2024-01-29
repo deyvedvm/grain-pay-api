@@ -1,20 +1,13 @@
 package dev.deyve.grainpayapi.models;
 
 import jakarta.persistence.*;
-import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Getter
-@Setter
 @Entity
-@Builder
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
 public class Expense extends Auditable {
 
     @Id
@@ -34,6 +27,57 @@ public class Expense extends Auditable {
     @Column(nullable = false)
     private PaymentType paymentType;
 
+    public Expense() {
+    }
+
+    public Expense(Long id, String description, BigDecimal amount, LocalDateTime date, PaymentType paymentType) {
+        this.id = id;
+        this.description = description;
+        this.amount = amount;
+        this.date = date;
+        this.paymentType = paymentType;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
+    public PaymentType getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(PaymentType paymentType) {
+        this.paymentType = paymentType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -46,4 +90,5 @@ public class Expense extends Auditable {
     public int hashCode() {
         return getClass().hashCode();
     }
+
 }

@@ -43,7 +43,7 @@ class ExpenseControllerTest {
     void shouldReturnListOfExpenses() throws Exception {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id"));
 
-        List<ExpenseDTO> mockExpenseDTOS = List.of(buildExpenseDTO().build());
+        List<ExpenseDTO> mockExpenseDTOS = List.of(buildExpenseDTO());
 
         Page<ExpenseDTO> mockExpensesPage = new PageImpl<>(mockExpenseDTOS);
 
@@ -64,9 +64,9 @@ class ExpenseControllerTest {
     @Test
     @DisplayName("Should save expense and return expense saved")
     void shouldSaveExpenseAndReturnExpenseSaved() throws Exception {
-        ExpenseDTO mockExpenseDTO = buildExpenseDTO().build();
+        ExpenseDTO mockExpenseDTO = buildExpenseDTO();
 
-        ExpenseDTO savedExpenseDTO = buildExpenseDTO().build();
+        ExpenseDTO savedExpenseDTO = buildExpenseDTO();
         savedExpenseDTO.setDescription("Celphone");
         savedExpenseDTO.setAmount(BigDecimal.valueOf(1000.00));
         savedExpenseDTO.setCreatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));
@@ -93,7 +93,7 @@ class ExpenseControllerTest {
     @DisplayName("Should return a expense by id")
     void shouldReturnExpenseById() throws Throwable {
 
-        ExpenseDTO mockExpenseDTO = buildExpenseDTO().build();
+        ExpenseDTO mockExpenseDTO = buildExpenseDTO();
 
         Long mockId = mockExpenseDTO.getId();
 
@@ -113,11 +113,11 @@ class ExpenseControllerTest {
     @Test
     @DisplayName("Should return a expense updated")
     void shouldUpdateExpenseById() throws Exception {
-        ExpenseDTO mockExpenseDTO = buildExpenseDTO().build();
+        ExpenseDTO mockExpenseDTO = buildExpenseDTO();
 
         Long mockId = mockExpenseDTO.getId();
 
-        ExpenseDTO updatedExpenseDTO = buildExpenseDTO().build();
+        ExpenseDTO updatedExpenseDTO = buildExpenseDTO();
         updatedExpenseDTO.setDescription("Updated description");
         updatedExpenseDTO.setCreatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));
         updatedExpenseDTO.setUpdatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));

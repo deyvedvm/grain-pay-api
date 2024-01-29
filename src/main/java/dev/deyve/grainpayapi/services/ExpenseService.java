@@ -5,7 +5,6 @@ import dev.deyve.grainpayapi.exceptions.ExpenseNotFoundException;
 import dev.deyve.grainpayapi.mappers.ExpenseMapper;
 import dev.deyve.grainpayapi.models.Expense;
 import dev.deyve.grainpayapi.repositories.ExpenseRepository;
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -13,13 +12,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 public class ExpenseService implements IService<ExpenseDTO> {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpenseService.class);
 
     private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
+
+    public ExpenseService(ExpenseRepository expenseRepository, ExpenseMapper expenseMapper) {
+        this.expenseRepository = expenseRepository;
+        this.expenseMapper = expenseMapper;
+    }
 
     /**
      * Find All Expenses
