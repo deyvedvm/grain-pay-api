@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -17,128 +18,129 @@ import java.util.stream.Collectors;
 public class GrainPayExceptionHandler {
 
     @ExceptionHandler(value = {ExpenseNotFoundException.class})
-    public ResponseEntity<GrainPayError> handleExpenseNotFoundException(ExpenseNotFoundException expenseNotFoundException) {
+    public ResponseEntity<ErrorResponse> handleExpenseNotFoundException(ExpenseNotFoundException expenseNotFoundException) {
 
-        HttpStatus badRequest = HttpStatus.NOT_FOUND;
+        HttpStatus notFound = HttpStatus.NOT_FOUND;
 
-        GrainPayError grainPayError = new GrainPayError(
+        ErrorResponse errorResponse = new ErrorResponse(
                 expenseNotFoundException.getMessage(),
-                badRequest,
+                notFound,
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
 
-        return new ResponseEntity<>(grainPayError, badRequest);
+        return new ResponseEntity<>(errorResponse, notFound);
     }
 
     @ExceptionHandler(value = {IncomeNotFoundException.class})
-    public ResponseEntity<GrainPayError> handleIncomeNotFoundException(IncomeNotFoundException incomeNotFoundException) {
+    public ResponseEntity<ErrorResponse> handleIncomeNotFoundException(IncomeNotFoundException incomeNotFoundException) {
 
-        HttpStatus badRequest = HttpStatus.NOT_FOUND;
+        HttpStatus notFound = HttpStatus.NOT_FOUND;
 
-        GrainPayError grainPayError = new GrainPayError(
+        ErrorResponse errorResponse = new ErrorResponse(
                 incomeNotFoundException.getMessage(),
-                badRequest,
+                notFound,
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
 
-        return new ResponseEntity<>(grainPayError, badRequest);
+        return new ResponseEntity<>(errorResponse, notFound);
     }
 
     @ExceptionHandler(value = {NoSuchElementException.class})
-    public ResponseEntity<GrainPayError> handleNoSuchElementException(NoSuchElementException noSuchElementException) {
+    public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException noSuchElementException) {
 
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
 
-        GrainPayError grainPayError = new GrainPayError(
+        ErrorResponse errorResponse = new ErrorResponse(
                 noSuchElementException.getMessage(),
                 badRequest,
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
 
-        return new ResponseEntity<>(grainPayError, badRequest);
+        return new ResponseEntity<>(errorResponse, badRequest);
     }
 
     @ExceptionHandler(value = {IllegalArgumentException.class})
-    public ResponseEntity<GrainPayError> handleIllegalArgumentException(IllegalArgumentException illegalArgumentException) {
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException illegalArgumentException) {
 
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
 
-        GrainPayError grainPayError = new GrainPayError(
+        ErrorResponse errorResponse = new ErrorResponse(
                 illegalArgumentException.getMessage(),
                 badRequest,
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
 
-        return new ResponseEntity<>(grainPayError, badRequest);
+        return new ResponseEntity<>(errorResponse, badRequest);
     }
 
     @ExceptionHandler(value = {BadRequestException.class})
-    public ResponseEntity<GrainPayError> handleBadRequestException(BadRequestException badRequestException) {
+    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException badRequestException) {
 
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
 
-        GrainPayError grainPayError = new GrainPayError(
+        ErrorResponse errorResponse = new ErrorResponse(
                 badRequestException.getMessage(),
                 badRequest,
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
 
-        return new ResponseEntity<>(grainPayError, badRequest);
+        return new ResponseEntity<>(errorResponse, badRequest);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<GrainPayError> handleConstraintViolationException(ConstraintViolationException constraintViolationException) {
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException constraintViolationException) {
         List<String> errors = constraintViolationException.getConstraintViolations().stream()
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
                 .collect(Collectors.toList());
 
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
 
-        GrainPayError grainPayError = new GrainPayError(
+        ErrorResponse errorResponse = new ErrorResponse(
                 "Constraint violation failed. Check 'errors' field for more details.",
                 badRequest,
                 errors,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
 
-        return new ResponseEntity<>(grainPayError, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<GrainPayError> handleMethodArgumentNotValidException(MethodArgumentNotValidException methodArgumentNotValidException) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException methodArgumentNotValidException) {
         List<String> errors = methodArgumentNotValidException.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.toList());
 
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
 
-        GrainPayError grainPayError = new GrainPayError(
+        ErrorResponse errorResponse = new ErrorResponse(
                 "Validation failed. Check 'errors' field for more details.",
                 badRequest,
                 errors,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
 
-        return new ResponseEntity<>(grainPayError, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value = {InternalServerError.class})
-    public ResponseEntity<GrainPayError> handleInternalServerError(InternalServerError internalServerError) {
+    @ExceptionHandler(value = {HttpServerErrorException.InternalServerError.class})
+    public ResponseEntity<ErrorResponse> handleInternalServerError(HttpServerErrorException.InternalServerError internalServerError) {
 
         HttpStatus serverError = HttpStatus.INTERNAL_SERVER_ERROR;
 
-        GrainPayError grainPayError = new GrainPayError(
+        ErrorResponse errorResponse = new ErrorResponse(
                 internalServerError.getMessage(),
                 serverError,
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
 
-        return new ResponseEntity<>(grainPayError, serverError);
+        return new ResponseEntity<>(errorResponse, serverError);
     }
+
 }
