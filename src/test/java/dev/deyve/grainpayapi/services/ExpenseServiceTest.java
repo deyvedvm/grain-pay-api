@@ -49,7 +49,7 @@ class ExpenseServiceTest {
         Page<ExpenseDTO> expenseDTOPage = new PageImpl<>(List.of(expenseDTO));
 
         when(expenseRepository.findAll(pageable)).thenReturn(expensePage);
-        when(expenseMapper.toDTO(expensePage.getContent().get(0))).thenReturn(expenseDTO);
+        when(expenseMapper.toDTO(expensePage.getContent().getFirst())).thenReturn(expenseDTO);
 
         // Act
         Page<ExpenseDTO> expenseDTOPageFound = expenseService.findAll(pageable);
@@ -140,7 +140,7 @@ class ExpenseServiceTest {
 
     @Test
     @DisplayName("Should throw IllegalArgumentException when update expense by id")
-    void sholdThrowExceptionWhenUpdateExpenseById() {
+    void shouldThrowExceptionWhenUpdateExpenseById() {
         // Arrange
         ExpenseDTO expenseDTO = buildExpenseDTO();
 
