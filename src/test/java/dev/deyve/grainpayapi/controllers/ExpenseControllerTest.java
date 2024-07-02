@@ -12,7 +12,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,10 +19,10 @@ import java.util.List;
 
 import static dev.deyve.grainpayapi.dummies.ExpenseDTODummy.buildExpenseDTO;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.BDDMockito.doNothing;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ExpenseController.class)
 @DisplayName("Expense Controller Tests")
@@ -52,11 +51,11 @@ class ExpenseControllerTest {
         mockMvc.perform(get("/api/expenses")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].description").value("Mock description"))
-                .andExpect(jsonPath("$[0].amount").value(BigDecimal.TEN))
-                .andExpect(jsonPath("$[0].date").value("2023-04-01T00:00:00"))
-                .andExpect(jsonPath("$[0].paymentType").value(PaymentType.MONEY.getDescription()));
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].description").value("Mock description"))
+                .andExpect(jsonPath("$.data[0].amount").value(BigDecimal.TEN))
+                .andExpect(jsonPath("$.data[0].date").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.data[0].paymentType").value(PaymentType.MONEY.getDescription()));
 
         verify(expenseService, times(1)).findAll(pageable);
     }
@@ -67,7 +66,7 @@ class ExpenseControllerTest {
         ExpenseDTO mockExpenseDTO = buildExpenseDTO();
 
         ExpenseDTO savedExpenseDTO = buildExpenseDTO();
-        savedExpenseDTO.setDescription("Celphone");
+        savedExpenseDTO.setDescription("Cellphone");
         savedExpenseDTO.setAmount(BigDecimal.valueOf(1000.00));
         savedExpenseDTO.setCreatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));
         savedExpenseDTO.setUpdatedAt(LocalDateTime.of(2023, 4, 1, 0, 0));
@@ -78,21 +77,20 @@ class ExpenseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockExpenseDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.description").value("Celphone"))
-                .andExpect(jsonPath("$.amount").value(BigDecimal.valueOf(1000.00)))
-                .andExpect(jsonPath("$.date").value("2023-04-01T00:00:00"))
-                .andExpect(jsonPath("$.paymentType").value(PaymentType.MONEY.getDescription()))
-                .andExpect(jsonPath("$.createdAt").value("2023-04-01T00:00:00"))
-                .andExpect(jsonPath("$.updatedAt").value("2023-04-01T00:00:00"));
+                .andExpect(jsonPath("$.data.id").value(1L))
+                .andExpect(jsonPath("$.data.description").value("Cellphone"))
+                .andExpect(jsonPath("$.data.amount").value(BigDecimal.valueOf(1000.00)))
+                .andExpect(jsonPath("$.data.date").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.data.paymentType").value(PaymentType.MONEY.getDescription()))
+                .andExpect(jsonPath("$.data.createdAt").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.data.updatedAt").value("2023-04-01T00:00:00"));
 
         verify(expenseService, times(1)).save(mockExpenseDTO);
     }
 
     @Test
-    @DisplayName("Should return a expense by id")
-    void shouldReturnExpenseById() throws Throwable {
-
+    @DisplayName("Should return an expense by id")
+    void shouldReturnExpenseById() throws Exception {
         ExpenseDTO mockExpenseDTO = buildExpenseDTO();
 
         Long mockId = mockExpenseDTO.getId();
@@ -102,16 +100,17 @@ class ExpenseControllerTest {
         mockMvc.perform(get("/api/expenses/{id}", mockId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description").value(mockExpenseDTO.getDescription()))
-                .andExpect(jsonPath("$.amount").value(mockExpenseDTO.getAmount()))
-                .andExpect(jsonPath("$.date").value("2023-04-01T00:00:00"))
-                .andExpect(jsonPath("$.paymentType").value(mockExpenseDTO.getPaymentType().getDescription()));
+                .andExpect(jsonPath("$.data.id").value(mockExpenseDTO.getId()))
+                .andExpect(jsonPath("$.data.description").value("Mock description"))
+                .andExpect(jsonPath("$.data.amount").value(BigDecimal.TEN))
+                .andExpect(jsonPath("$.data.date").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.data.paymentType").value(PaymentType.MONEY.getDescription()));
 
         verify(expenseService, times(1)).findById(mockId);
     }
 
     @Test
-    @DisplayName("Should return a expense updated")
+    @DisplayName("Should update expense by id")
     void shouldUpdateExpenseById() throws Exception {
         ExpenseDTO mockExpenseDTO = buildExpenseDTO();
 
@@ -124,17 +123,16 @@ class ExpenseControllerTest {
 
         when(expenseService.updateById(mockId, mockExpenseDTO)).thenReturn(updatedExpenseDTO);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/expenses/{id}", mockId)
+        mockMvc.perform(put("/api/expenses/{id}", mockId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockExpenseDTO)))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.description").value("Updated description"))
-                .andExpect(jsonPath("$.amount").value(updatedExpenseDTO.getAmount()))
-                .andExpect(jsonPath("$.date").value("2023-04-01T00:00:00"))
-                .andExpect(jsonPath("$.paymentType").value(PaymentType.MONEY.getDescription()))
-                .andExpect(jsonPath("$.createdAt").value("2023-04-01T00:00:00"))
-                .andExpect(jsonPath("$.updatedAt").value("2023-04-01T00:00:00"));
+                .andExpect(jsonPath("$.data.description").value("Updated description"))
+                .andExpect(jsonPath("$.data.amount").value(updatedExpenseDTO.getAmount()))
+                .andExpect(jsonPath("$.data.date").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.data.paymentType").value(PaymentType.MONEY.getDescription()))
+                .andExpect(jsonPath("$.data.createdAt").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.data.updatedAt").value("2023-04-01T00:00:00"));
 
         verify(expenseService, times(1)).updateById(mockId, mockExpenseDTO);
     }
@@ -150,7 +148,6 @@ class ExpenseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        verify(expenseService, times(1)).deleteById(1L);
+        verify(expenseService, times(1)).deleteById(mockId);
     }
-
 }

@@ -11,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,6 +20,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @WebMvcTest(controllers = IncomeController.class)
 @DisplayName("Income Controller Tests")
@@ -46,18 +46,17 @@ class IncomeControllerTest {
 
         when(incomeService.findAll(pageable)).thenReturn(mockIncomesPage);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/incomes")
+        mockMvc.perform(get("/api/incomes")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].description").value("Salary"))
-                .andExpect(jsonPath("$[0].amount").value(BigDecimal.valueOf(1000.00)))
-                .andExpect(jsonPath("$[0].date").value("2023-04-01"))
-                .andExpect(jsonPath("$[0].createdAt").value("2023-04-01T00:00:00"))
-                .andExpect(jsonPath("$[0].updatedAt").value("2023-04-01T00:00:00"));
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].description").value("Salary"))
+                .andExpect(jsonPath("$.data[0].amount").value(BigDecimal.valueOf(1000.00)))
+                .andExpect(jsonPath("$.data[0].date").value("2023-04-01"))
+                .andExpect(jsonPath("$.data[0].createdAt").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.data[0].updatedAt").value("2023-04-01T00:00:00"));
 
         verify(incomeService).findAll(pageable);
-
     }
 
     @Test
@@ -70,15 +69,15 @@ class IncomeControllerTest {
 
         when(incomeService.save(mockIncomeDTO)).thenReturn(savedIncomeDTO);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/incomes")
+        mockMvc.perform(post("/api/incomes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockIncomeDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.description").value("Extra Salary"))
-                .andExpect(jsonPath("$.amount").value(BigDecimal.valueOf(1000.00)))
-                .andExpect(jsonPath("$.date").value("2023-04-01"))
-                .andExpect(jsonPath("$.createdAt").value("2023-04-01T00:00:00"))
-                .andExpect(jsonPath("$.updatedAt").value("2023-04-01T00:00:00"));
+                .andExpect(jsonPath("$.data.description").value("Extra Salary"))
+                .andExpect(jsonPath("$.data.amount").value(BigDecimal.valueOf(1000.00)))
+                .andExpect(jsonPath("$.data.date").value("2023-04-01"))
+                .andExpect(jsonPath("$.data.createdAt").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.data.updatedAt").value("2023-04-01T00:00:00"));
 
         verify(incomeService).save(mockIncomeDTO);
     }
@@ -86,28 +85,26 @@ class IncomeControllerTest {
     @Test
     @DisplayName("Should return income by id")
     void shouldGetIncome() throws Exception {
-
         IncomeDTO mockIncomeDTO = buildIncomeDTO();
 
         when(incomeService.findById(1L)).thenReturn(mockIncomeDTO);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/incomes/1")
+        mockMvc.perform(get("/api/incomes/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description").value("Salary"))
-                .andExpect(jsonPath("$.amount").value(BigDecimal.valueOf(1000.00)))
-                .andExpect(jsonPath("$.date").value("2023-04-01"))
-                .andExpect(jsonPath("$.createdAt").value("2023-04-01T00:00:00"))
-                .andExpect(jsonPath("$.updatedAt").value("2023-04-01T00:00:00"));
+                .andExpect(jsonPath("$.data.id").value(1L))
+                .andExpect(jsonPath("$.data.description").value("Salary"))
+                .andExpect(jsonPath("$.data.amount").value(BigDecimal.valueOf(1000.00)))
+                .andExpect(jsonPath("$.data.date").value("2023-04-01"))
+                .andExpect(jsonPath("$.data.createdAt").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.data.updatedAt").value("2023-04-01T00:00:00"));
 
         verify(incomeService).findById(1L);
-
     }
 
     @Test
     @DisplayName("Should update income by id")
     void shouldPutIncome() throws Exception {
-
         IncomeDTO mockIncomeDTO = buildIncomeDTO();
 
         IncomeDTO updatedIncomeDTO = buildIncomeDTO();
@@ -115,15 +112,15 @@ class IncomeControllerTest {
 
         when(incomeService.updateById(1L, mockIncomeDTO)).thenReturn(updatedIncomeDTO);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/incomes/1")
+        mockMvc.perform(put("/api/incomes/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockIncomeDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description").value("Extra Salary"))
-                .andExpect(jsonPath("$.amount").value(BigDecimal.valueOf(1000.00)))
-                .andExpect(jsonPath("$.date").value("2023-04-01"))
-                .andExpect(jsonPath("$.createdAt").value("2023-04-01T00:00:00"))
-                .andExpect(jsonPath("$.updatedAt").value("2023-04-01T00:00:00"));
+                .andExpect(jsonPath("$.data.description").value("Extra Salary"))
+                .andExpect(jsonPath("$.data.amount").value(BigDecimal.valueOf(1000.00)))
+                .andExpect(jsonPath("$.data.date").value("2023-04-01"))
+                .andExpect(jsonPath("$.data.createdAt").value("2023-04-01T00:00:00"))
+                .andExpect(jsonPath("$.data.updatedAt").value("2023-04-01T00:00:00"));
 
         verify(incomeService).updateById(1L, mockIncomeDTO);
     }
@@ -131,14 +128,12 @@ class IncomeControllerTest {
     @Test
     @DisplayName("Should delete income by id")
     void shouldDeleteIncome() throws Exception {
-
         doNothing().when(incomeService).deleteById(1L);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/incomes/1")
+        mockMvc.perform(delete("/api/incomes/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         verify(incomeService).deleteById(1L);
     }
 }
-
