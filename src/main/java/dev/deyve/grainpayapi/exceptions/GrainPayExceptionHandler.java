@@ -23,7 +23,7 @@ public class GrainPayExceptionHandler {
 
         GrainPayError grainPayError = new GrainPayError(
                 expenseNotFoundException.getMessage(),
-                badRequest,
+                badRequest.value(),
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
@@ -38,7 +38,7 @@ public class GrainPayExceptionHandler {
 
         GrainPayError grainPayError = new GrainPayError(
                 incomeNotFoundException.getMessage(),
-                badRequest,
+                badRequest.value(),
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
@@ -53,7 +53,7 @@ public class GrainPayExceptionHandler {
 
         GrainPayError grainPayError = new GrainPayError(
                 noSuchElementException.getMessage(),
-                badRequest,
+                badRequest.value(),
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
@@ -68,7 +68,7 @@ public class GrainPayExceptionHandler {
 
         GrainPayError grainPayError = new GrainPayError(
                 illegalArgumentException.getMessage(),
-                badRequest,
+                badRequest.value(),
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
@@ -83,7 +83,7 @@ public class GrainPayExceptionHandler {
 
         GrainPayError grainPayError = new GrainPayError(
                 badRequestException.getMessage(),
-                badRequest,
+                badRequest.value(),
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
@@ -101,7 +101,7 @@ public class GrainPayExceptionHandler {
 
         GrainPayError grainPayError = new GrainPayError(
                 "Constraint violation failed. Check 'errors' field for more details.",
-                badRequest,
+                badRequest.value(),
                 errors,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
@@ -119,7 +119,7 @@ public class GrainPayExceptionHandler {
 
         GrainPayError grainPayError = new GrainPayError(
                 "Validation failed. Check 'errors' field for more details.",
-                badRequest,
+                badRequest.value(),
                 errors,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );
@@ -134,7 +134,7 @@ public class GrainPayExceptionHandler {
 
         GrainPayError grainPayError = new GrainPayError(
                 internalServerError.getMessage(),
-                serverError,
+                serverError.value(),
                 List.of(),
                 ZonedDateTime.now(ZoneId.of("Z"))
         );

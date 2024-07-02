@@ -1,6 +1,7 @@
 package dev.deyve.grainpayapi.controllers;
 
 import dev.deyve.grainpayapi.dtos.ExpenseDTO;
+import dev.deyve.grainpayapi.dtos.Response;
 import dev.deyve.grainpayapi.services.ExpenseService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -13,7 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("/api/expenses")
@@ -30,11 +32,14 @@ public class ExpenseController implements IController<ExpenseDTO> {
     /**
      * Get Expenses by Page
      *
-     * @return List<ExpenseDTO> List of Expenses
+     * @param page number of page
+     * @param size number of items
+     * @param sort sort by
+     * @return ResponseEntity
      */
     @Override
     @GetMapping
-    public ResponseEntity<List<ExpenseDTO>> findAll(
+    public ResponseEntity<Response> findAll(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(defaultValue = "id") String sort) {
@@ -45,7 +50,7 @@ public class ExpenseController implements IController<ExpenseDTO> {
 
         Page<ExpenseDTO> expenses = expenseService.findAll(pageable);
 
-        return new ResponseEntity<>(expenses.getContent(), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(expenses.getContent(), OK.value(), "List of expenses"), OK);
     }
 
     /**
@@ -56,13 +61,13 @@ public class ExpenseController implements IController<ExpenseDTO> {
      */
     @Override
     @PostMapping
-    public ResponseEntity<ExpenseDTO> post(@Valid @RequestBody ExpenseDTO expenseDTO) {
+    public ResponseEntity<Response> post(@Valid @RequestBody ExpenseDTO expenseDTO) {
 
         logger.info("GRAIN-API: Save expense: {}", expenseDTO);
 
         ExpenseDTO expense = expenseService.save(expenseDTO);
 
-        return new ResponseEntity<>(expense, HttpStatus.CREATED);
+        return new ResponseEntity<>(new Response(expense, CREATED.value(), "Expense created"), CREATED);
     }
 
     /**
@@ -73,13 +78,13 @@ public class ExpenseController implements IController<ExpenseDTO> {
      */
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseDTO> get(@PathVariable Long id) {
+    public ResponseEntity<Response> get(@PathVariable Long id) {
 
         logger.info("GRAIN-API: Get expense by id {}", id);
 
         ExpenseDTO expenseDTO = expenseService.findById(id);
 
-        return new ResponseEntity<>(expenseDTO, HttpStatus.OK);
+        return new ResponseEntity<>(new Response(expenseDTO, OK.value(), "Expense found"), OK);
     }
 
     /**
@@ -91,13 +96,13 @@ public class ExpenseController implements IController<ExpenseDTO> {
      */
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<ExpenseDTO> put(@PathVariable Long id, @Valid @RequestBody ExpenseDTO expenseDTO) {
+    public ResponseEntity<Response> put(@PathVariable Long id, @Valid @RequestBody ExpenseDTO expenseDTO) {
 
         logger.info("GRAIN-API: Update expense by id {}", id);
 
         ExpenseDTO updatedExpenseDTO = expenseService.updateById(id, expenseDTO);
 
-        return new ResponseEntity<>(updatedExpenseDTO, HttpStatus.OK);
+        return new ResponseEntity<>(new Response(updatedExpenseDTO, OK.value(), "Expense updated"), OK);
 
     }
 

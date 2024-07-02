@@ -85,7 +85,7 @@ public class IncomeService implements IService<IncomeDTO> {
 
         checkId(id, incomeDTO);
 
-        incomeRepository.findById(id).orElseThrow(() -> new IncomeNotFoundException("Income not found!"));
+        incomeRepository.findById(id).orElseThrow(() -> new IncomeNotFoundException("Income not found"));
 
         Income income = incomeMapper.toEntity(incomeDTO);
 
@@ -106,7 +106,7 @@ public class IncomeService implements IService<IncomeDTO> {
 
         logger.debug("GRAIN-API: Delete income by id {}", id);
 
-        incomeRepository.findById(id).orElseThrow(() -> new IncomeNotFoundException("Income not found!"));
+        incomeRepository.findById(id).orElseThrow(() -> new IncomeNotFoundException("Income not found"));
 
         incomeRepository.deleteById(id);
     }

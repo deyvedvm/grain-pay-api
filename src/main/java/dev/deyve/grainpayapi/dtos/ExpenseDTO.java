@@ -8,11 +8,14 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExpenseDTO {
 
     private Long id;
+
+    UUID externalId;
 
     @NotBlank(message = "Description cannot be empty")
     private String description;

@@ -1,6 +1,7 @@
 package dev.deyve.grainpayapi.controllers;
 
 import dev.deyve.grainpayapi.dtos.IncomeDTO;
+import dev.deyve.grainpayapi.dtos.Response;
 import dev.deyve.grainpayapi.services.IService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -13,7 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("/api/incomes")
@@ -30,11 +32,14 @@ public class IncomeController implements IController<IncomeDTO> {
     /**
      * Get Incomes by Page
      *
-     * @return List<IncomeDTO> List of Incomes
+     * @param page number of page
+     * @param size number of items
+     * @param sort sort by
+     * @return ResponseEntity
      */
     @Override
     @GetMapping
-    public ResponseEntity<List<IncomeDTO>> findAll(
+    public ResponseEntity<Response> findAll(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(defaultValue = "id") String sort) {
@@ -44,7 +49,7 @@ public class IncomeController implements IController<IncomeDTO> {
 
         Page<IncomeDTO> incomes = incomeService.findAll(pageable);
 
-        return new ResponseEntity<>(incomes.getContent(), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(incomes.getContent(), OK.value(), "List of incomes"), OK);
     }
 
     /**
@@ -55,13 +60,13 @@ public class IncomeController implements IController<IncomeDTO> {
      */
     @Override
     @PostMapping
-    public ResponseEntity<IncomeDTO> post(@Valid @RequestBody IncomeDTO incomeDTO) {
+    public ResponseEntity<Response> post(@Valid @RequestBody IncomeDTO incomeDTO) {
 
         logger.info("GRAIN-API: Save income: {}", incomeDTO);
 
         IncomeDTO incomeSaved = incomeService.save(incomeDTO);
 
-        return new ResponseEntity<>(incomeSaved, HttpStatus.CREATED);
+        return new ResponseEntity<>(new Response(incomeSaved, CREATED.value(), "Income saved"), CREATED);
     }
 
     /**
@@ -72,13 +77,13 @@ public class IncomeController implements IController<IncomeDTO> {
      */
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<IncomeDTO> get(@PathVariable Long id) {
+    public ResponseEntity<Response> get(@PathVariable Long id) {
 
         logger.info("GRAIN-API: Get income by id: {}", id);
 
         IncomeDTO income = incomeService.findById(id);
 
-        return new ResponseEntity<>(income, HttpStatus.OK);
+        return new ResponseEntity<>(new Response(income, OK.value(), "Income found"), OK);
     }
 
     /**
@@ -90,13 +95,13 @@ public class IncomeController implements IController<IncomeDTO> {
      */
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<IncomeDTO> put(@PathVariable Long id, @Valid @RequestBody IncomeDTO incomeDTO) {
+    public ResponseEntity<Response> put(@PathVariable Long id, @Valid @RequestBody IncomeDTO incomeDTO) {
 
         logger.info("GRAIN-API: Update income by id: {}", id);
 
         IncomeDTO incomeUpdated = incomeService.updateById(id, incomeDTO);
 
-        return new ResponseEntity<>(incomeUpdated, HttpStatus.OK);
+        return new ResponseEntity<>(new Response(incomeUpdated, OK.value(), "Income update"), OK);
     }
 
     /**

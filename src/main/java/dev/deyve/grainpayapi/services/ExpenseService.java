@@ -64,7 +64,7 @@ public class ExpenseService implements IService<ExpenseDTO> {
     @Override
     public ExpenseDTO findById(Long id) {
         Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new ExpenseNotFoundException("Expense not found!"));
+                .orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
 
         logger.debug("GRAIN-API: Expense: {}", expense);
 
@@ -83,7 +83,7 @@ public class ExpenseService implements IService<ExpenseDTO> {
 
         checkId(id, expenseDTO);
 
-        expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found!"));
+        expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
 
         Expense expense = expenseMapper.toEntity(expenseDTO);
 
@@ -104,7 +104,7 @@ public class ExpenseService implements IService<ExpenseDTO> {
 
         logger.debug("GRAIN-API: Expense Deleted by Id: {}", id);
 
-        expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found!"));
+        expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
 
         expenseRepository.deleteById(id);
     }
