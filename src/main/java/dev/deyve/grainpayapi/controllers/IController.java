@@ -22,6 +22,6 @@ public interface IController<T> {
 
     ResponseEntity<Response> put(@PathVariable Long id, @Valid @RequestBody T t);
 
-    ResponseEntity<Void> delete(@PathVariable Long id);
+    ResponseEntity<Response> delete(@PathVariable Long id);
 
 }

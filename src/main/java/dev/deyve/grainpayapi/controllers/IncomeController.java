@@ -10,12 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/api/incomes")
@@ -112,13 +110,13 @@ public class IncomeController implements IController<IncomeDTO> {
      */
     @Override
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Response> delete(@PathVariable Long id) {
 
         logger.info("GRAIN-API: Delete income by id: {}", id);
 
         incomeService.deleteById(id);
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(new Response(null, NO_CONTENT.value(), "Income deleted"), NO_CONTENT);
     }
 
 }
