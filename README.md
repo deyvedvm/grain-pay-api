@@ -29,6 +29,12 @@ mvn clean install
 mvn spring-boot:run
 ```
 
+or run the JAR file:
+
+```bash
+java -jar target/grain-pay-api-0.0.1-SNAPSHOT.jar
+```
+
 ## Usage
 
 After starting the application, you can access the REST API endpoints at `http://localhost:8080/`.
@@ -49,6 +55,14 @@ The application can be configured via the `application-dev.yml` file for develop
 - Pagination and sorting for listing expenses
 - Validation of expense entries
 - Logging of API requests and responses
+
+## Swagger API Documentation
+
+Swagger is integrated into the project to provide interactive API documentation.
+
+1. **Access the Swagger UI**:
+    - Start your Spring Boot application.
+    - Open your web browser and navigate to `http://localhost:8080/swagger-ui.html` to access the Swagger UI.
 
 ## Contributing
 
@@ -72,7 +86,7 @@ For any questions or contributions, please contact [deyvedev@gmail.com](deyvedev
 - [X] Add tests
 - [X] Add documentation
 - [ ] Add CI/CD
-- [ ] Add Swagger for API documentation
+- [X] Add Swagger for API documentation
 - [x] Add ControllerAdvice for global exception handling
 - [ ] Implement Authentication with JWT
 - [ ] Integrate Keycloak for identity and access management
