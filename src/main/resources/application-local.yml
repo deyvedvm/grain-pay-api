@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: default
+      on-profile: local
   datasource:
     url: ${POSTGRES_DATASOURCE_URL}
     username: ${POSTGRES_DATASOURCE_USERNAME}

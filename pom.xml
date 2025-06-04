@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.3</version>
+        <version>3.5.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>dev.deyve</groupId>
@@ -23,9 +23,9 @@
 
     <properties>
         <java.version>21</java.version>
-        <testcontainers.version>1.19.8</testcontainers.version>
+        <testcontainers.version>1.21.0</testcontainers.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <flyway.version>10.20.0</flyway.version>
+        <flyway.version>11.8.2</flyway.version>
     </properties>
 
     <dependencies>
@@ -58,6 +58,13 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+
+        <!-- Flyway Database PostgreSQL -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
             <version>${flyway.version}</version>
         </dependency>
 
