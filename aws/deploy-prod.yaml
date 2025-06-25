@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Spring Boot application deployment on EC2 with API Gateway for prod environment
+
+Parameters:
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t3.micro
+
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+
+  SpringBootJarS3Bucket:
+    Description: S3 bucket where the Spring Boot JAR file is stored
+    Type: String
+
+  SpringBootJarS3Key:
+    Description: S3 key for the Spring Boot JAR file
+    Type: String
+
+Resources:
+  SpringBootEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: ami-0abcdef1234567890  # Replace with a valid AMI ID for your region
+      SecurityGroups:
+        - Ref: InstanceSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          amazon-linux-extras install java-openjdk17 -y
+          aws s3 cp s3://${SpringBootJarS3Bucket}/${SpringBootJarS3Key} /home/ec2-user/
+          java -jar /home/ec2-user/${SpringBootJarS3Key} > /home/ec2-user/application.log 2>&1 &
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH and HTTP access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: SpringBootApi-prod
+      Description: API Gateway for Spring Boot application in prod environment
+
+  ApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - ApiGateway
+          - RootResourceId
+      PathPart: springboot
+      RestApiId:
+        Ref: ApiGateway
+
+  ApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId:
+        Ref: ApiGatewayResource
+      RestApiId:
+        Ref: ApiGateway
+      Integration:
+        IntegrationHttpMethod: GET
+        Type: HTTP
+        Uri:
+          Fn::Sub: http://${SpringBootEC2Instance.PublicDnsName}:8080
+        IntegrationResponses:
+          - StatusCode: 200
+      MethodResponses:
+        - StatusCode: 200
+
+Outputs:
+  InstancePublicDNS:
+    Description: "Public DNS of the EC2 instance"
+    Value: !GetAtt
+      - SpringBootEC2Instance
+      - PublicDnsName
+  ApiEndpoint:
+    Description: "API Gateway endpoint"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod/springboot"
