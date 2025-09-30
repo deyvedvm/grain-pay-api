@@ -20,12 +20,32 @@ Parameters:
     Type: String
 
 Resources:
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2Role
+
   SpringBootEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
       ImageId: ami-0abcdef1234567890  # Replace with a valid AMI ID for your region
+      IamInstanceProfile: !Ref EC2InstanceProfile
       SecurityGroups:
         - Ref: InstanceSecurityGroup
       UserData:
@@ -59,32 +79,28 @@ Resources:
   ApiGatewayResource:
     Type: AWS::ApiGateway::Resource
     Properties:
-      ParentId:
-        Fn::GetAtt:
-          - ApiGateway
-          - RootResourceId
-      PathPart: springboot
-      RestApiId:
-        Ref: ApiGateway
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: '{proxy+}'
+      RestApiId: !Ref ApiGateway
 
   ApiGatewayMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
-      HttpMethod: GET
-      ResourceId:
-        Ref: ApiGatewayResource
-      RestApiId:
-        Ref: ApiGateway
+      HttpMethod: ANY
+      ResourceId: !Ref ApiGateway
+      RestApiId: !Ref ApiGateway
       Integration:
-        IntegrationHttpMethod: GET
-        Type: HTTP
-        Uri:
-          Fn::Sub: http://${SpringBootEC2Instance.PublicDnsName}:8080
-        IntegrationResponses:
-          - StatusCode: 200
-      MethodResponses:
-        - StatusCode: 200
+        IntegrationHttpMethod: ANY
+        Type: HTTP_PROXY
+        Uri: !Sub 'http://${SpringBootEC2Instance.PublicDnsName}:8080/{proxy}'
+
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: ApiGatewayMethod
+    Properties:
+      RestApiId: !Ref ApiGateway
+      StageName: prod
 
 Outputs:
   InstancePublicDNS:

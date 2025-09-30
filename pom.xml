@@ -10,7 +10,7 @@
     </parent>
     <groupId>dev.deyve</groupId>
     <artifactId>grain-pay-api</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <name>grain-pay-api</name>
     <description>Spring Boot API for Grain Project</description>
 
