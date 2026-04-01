@@ -1,7 +1,9 @@
-FROM eclipse-temurin:17-alpine
+FROM openjdk:17-jre-slim
 
-ARG JAR_FILE=target/*.jar
+WORKDIR /app
 
-COPY ${JAR_FILE} app.jar
+COPY target/grain-pay-api-*.jar app.jar
 
-ENTRYPOINT ["java","-jar","/app.jar"]
+EXPOSE 8080
+
+CMD ["java", "-jar", "app.jar"]
