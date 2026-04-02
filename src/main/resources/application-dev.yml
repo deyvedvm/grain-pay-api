@@ -21,3 +21,6 @@ spring:
     enabled: true
 server:
   port: ${PORT}
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}

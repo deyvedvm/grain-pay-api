@@ -1,99 +1,178 @@
 # Grain Pay API
 
-Grain Pay API is a Spring Boot application designed to manage expenses. It provides endpoints for creating, retrieving, updating, and deleting expense records.
+REST API de controle de finanças pessoais construída com Spring Boot 3.5 e Java 21. Permite registrar receitas e despesas, organizar por categorias e filtrar transações por múltiplos critérios, com autenticação JWT e isolamento de dados por usuário.
 
-## Installation and Setup
+## Stack
 
-Ensure you have Java 11 or newer and Maven installed on your system.
+- **Java 21** + **Spring Boot 3.5**
+- **PostgreSQL** + **Flyway** (migrations)
+- **Spring Security** + **JWT** (jjwt 0.12)
+- **MapStruct** (mapeamento de DTOs)
+- **SpringDoc OpenAPI** (Swagger UI)
+- **TestContainers** (testes de integração)
 
-1. Clone the repository:
+## Pré-requisitos
+
+- Java 21+
+- Maven 3.9+
+- PostgreSQL 15+
+
+## Variáveis de ambiente
+
+| Variável | Descrição |
+|---|---|
+| `POSTGRES_DATASOURCE_URL` | URL JDBC do banco (ex: `jdbc:postgresql://localhost:5432/grainpay`) |
+| `POSTGRES_DATASOURCE_USERNAME` | Usuário do banco |
+| `POSTGRES_DATASOURCE_PASSWORD` | Senha do banco |
+| `PORT` | Porta da aplicação (ex: `8080`) |
+| `JWT_SECRET` | Chave secreta Base64 (mínimo 32 bytes) |
+| `JWT_EXPIRATION` | Expiração do token em ms (padrão: `86400000` = 24h) |
+
+### Gerar JWT_SECRET
 
 ```bash
-git clone https://github.com/yourusername/grain-pay-api.git
+openssl rand -base64 32
 ```
 
-2. Navigate to the project directory:
-    
+## Instalação e execução
+
 ```bash
+# Clonar o repositório
+git clone https://github.com/deyvedev/grain-pay-api.git
 cd grain-pay-api
-```
-3. Build the project:
 
-```bash
+# Build
 mvn clean install
+
+# Executar (com perfil dev)
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-4. Run the application:
+Ou via JAR:
 
 ```bash
-mvn spring-boot:run
+java -jar target/grain-pay-api-0.0.1.jar --spring.profiles.active=dev
 ```
 
-or run the JAR file:
+## Endpoints
+
+### Autenticação (`/auth`)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `POST` | `/auth/register` | Cadastro de usuário |
+| `POST` | `/auth/login` | Login — retorna JWT |
+
+Todos os demais endpoints exigem o header:
+```
+Authorization: Bearer <token>
+```
+
+### Transações (`/api/transactions`)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/api/transactions` | Listar com filtros e paginação |
+| `POST` | `/api/transactions` | Criar transação |
+| `GET` | `/api/transactions/{id}` | Buscar por ID |
+| `PUT` | `/api/transactions/{id}` | Atualizar |
+| `DELETE` | `/api/transactions/{id}` | Excluir |
+
+**Filtros disponíveis (query params):**
+
+```
+type=INCOME|EXPENSE
+startDate=2026-01-01
+endDate=2026-03-31
+categoryId=1
+paymentType=PIX|CREDIT_CARD|DEBIT_CARD|MONEY|VR|VA|BANK_TRANSFER|BOLETO
+minAmount=100.00
+maxAmount=500.00
+page=0&size=10&sort=date
+```
+
+### Categorias (`/api/categories`)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/api/categories` | Listar categorias do usuário |
+| `POST` | `/api/categories` | Criar categoria |
+| `GET` | `/api/categories/{id}` | Buscar por ID |
+| `PUT` | `/api/categories/{id}` | Atualizar |
+| `DELETE` | `/api/categories/{id}` | Excluir |
+
+## Exemplos
+
+### Cadastro e login
 
 ```bash
-java -jar target/grain-pay-api-0.0.1-SNAPSHOT.jar
+curl -X POST http://localhost:8080/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"João","email":"joao@email.com","password":"senha123"}'
+
+curl -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"joao@email.com","password":"senha123"}'
 ```
 
-## Usage
-
-After starting the application, you can access the REST API endpoints at `http://localhost:8080/`.
-
-Example: Retrieve all expenses
+### Criar transação
 
 ```bash
-curl -X GET http://localhost:8080/expenses
+curl -X POST http://localhost:8080/api/transactions \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "EXPENSE",
+    "amount": 150.00,
+    "date": "2026-04-02",
+    "description": "Supermercado",
+    "paymentType": "PIX",
+    "categoryId": 1
+  }'
 ```
 
-## Configuration
+### Listar transações com filtros
 
-The application can be configured via the `application-dev.yml` file for development purposes. Ensure to set the environment variables `POSTGRES_DATASOURCE_URL`, `POSTGRES_DATASOURCE_USERNAME`, `POSTGRES_DATASOURCE_PASSWORD`, and `PORT` before running the application.
+```bash
+curl "http://localhost:8080/api/transactions?type=EXPENSE&startDate=2026-04-01&endDate=2026-04-30&page=0&size=10" \
+  -H "Authorization: Bearer <token>"
+```
 
-## Features
+## Documentação interativa (Swagger)
 
-- CRUD operations for expenses
-- Pagination and sorting for listing expenses
-- Validation of expense entries
-- Logging of API requests and responses
+Disponível em `http://localhost:{PORT}/swagger-ui/index.html` após iniciar a aplicação.
 
-## Swagger API Documentation
+## Banco de dados — Migrations (Flyway)
 
-Swagger is integrated into the project to provide interactive API documentation.
-
-1. **Access the Swagger UI**:
-    - Start your Spring Boot application.
-    - Open your web browser and navigate to `http://localhost:8080/swagger-ui.html` to access the Swagger UI.
-
-## Contributing
-
-We welcome contributions! Please open an issue or submit a pull request for any enhancements, bug fixes, or features.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For any questions or contributions, please contact [deyvedev@gmail.com](deyvedev@gmail.com) or open an issue on GitHub.
-
-## Additional Tools
-
-- [DataDog Dashboard](https://app.datadoghq.com/dashboard/lists)
-- [Bonsai Elasticsearch](https://app.bonsai.io/clusters)
+| Versão | Descrição |
+|---|---|
+| `V1_0_0` | Criação da tabela `expense` |
+| `V1_0_1` | Criação da tabela `income` |
+| `V1_0_2` | Correção da tabela `expense` |
+| `V1_0_3` | Criação da tabela `users` |
+| `V1_0_4` | Criação da tabela `categories` |
+| `V1_0_5` | Criação das tabelas `transactions` e `transaction_tags` |
+| `V1_0_6` | Remoção das tabelas legadas `income` e `expense` |
 
 ## TODO
 
-- [X] Add tests
-- [X] Add documentation
-- [ ] Add CI/CD
-- [X] Add Swagger for API documentation
-- [x] Add ControllerAdvice for global exception handling
-- [ ] Implement Authentication with JWT
-- [ ] Integrate Keycloak for identity and access management
-- [X] Containerize the application with Docker
-- [ ] Orchestrate the application with Kubernetes
-- [ ] Monitor the application with Grafana and Prometheus
-- [ ] Log management with ELK Stack
-- [ ] Implement event-driven architecture with Kafka
-- [ ] Implement CQRS and Event Sourcing
+- [x] CRUD de transações (Income/Expense unificados)
+- [x] Autenticação JWT
+- [x] Categorias de transação
+- [x] Filtros dinâmicos com Specification
+- [x] Swagger / OpenAPI
+- [x] Global exception handler
+- [x] Auditoria por usuário autenticado
+- [ ] Contas/Carteiras
+- [ ] Transações recorrentes (`@Scheduled`)
+- [ ] Parcelas de cartão de crédito
+- [ ] Dashboard / resumo financeiro
+- [ ] Orçamentos por categoria
+- [ ] Relatórios mensais e anuais
+- [ ] Exportação CSV/PDF
+- [ ] CI/CD
+- [ ] Monitoramento com Grafana/Prometheus
 
+## Contato
+
+[deyvedev@gmail.com](mailto:deyvedev@gmail.com)

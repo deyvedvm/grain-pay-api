@@ -13,16 +13,55 @@ CREDIT_CARD     → Cartão de Crédito
 DEBIT_CARD      → Cartão de Débito
 VR              → Vale Refeição
 VA              → Vale Alimentação
-VT              → Vale Transporte
 BANK_TRANSFER   → TED / DOC
 BOLETO          → Boleto Bancário
 ```
 
 ---
 
-### 2. Categorias de Transação
+### 2. Entidade Transaction (substitui Income e Expense)
 
-Hoje não existe nenhuma categorização. Crie uma entidade `Category`:
+Unificar `Income` e `Expense` em uma única entidade `Transaction` com um campo `type`:
+
+```java
+// Enum TransactionType
+INCOME, EXPENSE
+
+// Enum IncomeSource
+SALARY, FREELANCE, INVESTMENT, REFUND, OTHER
+
+// Entidade Transaction
+id                      → Long
+type                    → TransactionType (INCOME / EXPENSE)
+amount                  → BigDecimal
+date                    → LocalDate
+description             → String
+paymentType             → PaymentType
+category                → Category (FK)
+account                 → Account (FK)
+notes                   → String (nullable)
+tags                    → Set<String> (nullable)
+userId                  → Long (FK)
+
+// Específicos de EXPENSE (nullable):
+installments            → Integer (parcelas no cartão)
+currentInstallment      → Integer
+isRecurring             → boolean
+recurringTransactionId  → Long (FK, nullable)
+
+// Específico de INCOME (nullable):
+source                  → IncomeSource
+```
+
+**Motivação:** uma única tabela `transactions` simplifica queries de dashboard e relatórios, elimina duplicação de campos e facilita extensão futura (ex: transferências entre contas).
+
+Os DTOs na API podem continuar separados (`CreateIncomeRequest`, `CreateExpenseRequest`) mapeando para a mesma entidade — melhor experiência sem comprometer o modelo.
+
+---
+
+### 3. Categorias de Transação
+
+Crie uma entidade `Category`:
 
 ```
 id, name, type (EXPENSE/INCOME), icon, color, userId
@@ -34,13 +73,13 @@ Exemplos de categorias:
 
 ---
 
-### 3. Transações Recorrentes
+### 4. Transações Recorrentes
 
 Suporte a gastos mensais recorrentes (mensalidades, planos, assinaturas):
 
 ```java
 // Entidade RecurringTransaction
-id, description, amount, paymentType, category,
+id, description, amount, type (TransactionType), paymentType, category,
 recurrenceType (DAILY/WEEKLY/MONTHLY/YEARLY),
 startDate, endDate (nullable),
 dayOfMonth, isActive, userId
@@ -50,7 +89,7 @@ Com um **job agendado** (`@Scheduled`) que materializa as transações automatic
 
 ---
 
-### 4. Contas / Carteiras
+### 5. Contas / Carteiras
 
 Separe o dinheiro por origem:
 
@@ -61,26 +100,6 @@ bankName, balance, userId
 ```
 
 Isso permite rastrear saldo por conta, não só o total global.
-
----
-
-### 5. Enriquecimento do modelo de Expense/Income
-
-**Expense** precisa de:
-- `category` (FK)
-- `account` (FK — qual conta foi debitada)
-- `installments` (parcelas no cartão de crédito)
-- `currentInstallment`
-- `notes` (observações)
-- `tags` (Set\<String\>)
-- `isRecurring` (boolean)
-- `recurringTransactionId` (FK opcional)
-
-**Income** precisa de:
-- `category` (FK)
-- `account` (FK — onde foi creditado)
-- `source` (enum: SALARY, FREELANCE, INVESTMENT, REFUND, OTHER)
-- `notes`
 
 ---
 
@@ -100,16 +119,13 @@ Retorna:
 
 ---
 
-### 7. Filtros e Busca nos endpoints existentes
-
-Os repositórios hoje não têm queries customizadas. Adicione:
+### 7. Filtros e Busca
 
 ```
-GET /api/expenses?startDate=&endDate=&categoryId=&paymentType=&minAmount=&maxAmount=
-GET /api/incomes?startDate=&endDate=&source=
+GET /api/transactions?startDate=&endDate=&type=&categoryId=&paymentType=&minAmount=&maxAmount=
 ```
 
-Use `Specification<T>` do Spring Data JPA para filtros dinâmicos.
+Use `Specification<Transaction>` do Spring Data JPA para filtros dinâmicos.
 
 ---
 
@@ -157,11 +173,11 @@ Atualmente o auditor é hardcoded como `"test-user"`. Implemente:
 
 | Área | Melhoria |
 |---|---|
-| **Queries** | Adicionar `@Query` / `Specification` nos repositórios |
+| **Queries** | Adicionar `Specification<Transaction>` no repositório |
 | **Paginação** | Adicionar filtros nos endpoints paginados |
 | **Auditoria** | Resolver o auditor hardcoded (`test-user`) |
-| **Migrations** | Padronizar tipos das colunas (`income.id` é `SERIAL`, `expense.id` é `BIGSERIAL`) |
-| **DTOs** | Separar DTOs de criação (`CreateDTO`) dos de resposta (`ResponseDTO`) |
+| **Migrations** | Padronizar tipos das colunas e migrar `income`/`expense` para `transaction` |
+| **DTOs** | Separar DTOs de criação (`CreateIncomeRequest`, `CreateExpenseRequest`) dos de resposta (`TransactionResponse`) |
 | **Testes** | Aumentar cobertura com testes de integração por feature |
 | **Actuator** | Configurar endpoints de health/metrics para produção |
 
@@ -172,7 +188,8 @@ Atualmente o auditor é hardcoded como `"test-user"`. Implemente:
 ```
 Fase 1 (Core) ──────────────────────────────────────────
   ✦ Autenticação JWT + User
-  ✦ PaymentType completo (PIX, Débito, VA, VT)
+  ✦ Migrar Income/Expense → Transaction (com type INCOME/EXPENSE)
+  ✦ PaymentType completo (PIX, Débito, VA)
   ✦ Categorias de transação
   ✦ Filtros por data/categoria nos endpoints
 
