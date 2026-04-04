@@ -3,12 +3,15 @@ package dev.deyve.grainpayapi.services;
 import dev.deyve.grainpayapi.dtos.CreateTransactionRequest;
 import dev.deyve.grainpayapi.dtos.TransactionFilter;
 import dev.deyve.grainpayapi.dtos.TransactionResponse;
+import dev.deyve.grainpayapi.exceptions.AccountNotFoundException;
 import dev.deyve.grainpayapi.exceptions.CategoryNotFoundException;
 import dev.deyve.grainpayapi.exceptions.TransactionNotFoundException;
 import dev.deyve.grainpayapi.mappers.TransactionMapper;
+import dev.deyve.grainpayapi.models.Account;
 import dev.deyve.grainpayapi.models.Category;
 import dev.deyve.grainpayapi.models.Transaction;
 import dev.deyve.grainpayapi.models.User;
+import dev.deyve.grainpayapi.repositories.AccountRepository;
 import dev.deyve.grainpayapi.repositories.CategoryRepository;
 import dev.deyve.grainpayapi.repositories.TransactionRepository;
 import org.slf4j.Logger;
@@ -25,13 +28,16 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
+    private final AccountRepository accountRepository;
     private final TransactionMapper transactionMapper;
 
     public TransactionService(TransactionRepository transactionRepository,
                                CategoryRepository categoryRepository,
+                               AccountRepository accountRepository,
                                TransactionMapper transactionMapper) {
         this.transactionRepository = transactionRepository;
         this.categoryRepository = categoryRepository;
+        this.accountRepository = accountRepository;
         this.transactionMapper = transactionMapper;
     }
 
@@ -49,6 +55,13 @@ public class TransactionService {
                     .filter(c -> c.getUser().getId().equals(user.getId()))
                     .orElseThrow(() -> new CategoryNotFoundException("Category not found: " + request.categoryId()));
             transaction.setCategory(category);
+        }
+
+        if (request.accountId() != null) {
+            Account account = accountRepository.findById(request.accountId())
+                    .filter(a -> a.getUser().getId().equals(user.getId()))
+                    .orElseThrow(() -> new AccountNotFoundException("Account not found: " + request.accountId()));
+            transaction.setAccount(account);
         }
 
         Transaction saved = transactionRepository.save(transaction);
@@ -89,6 +102,15 @@ public class TransactionService {
             existing.setCategory(category);
         } else {
             existing.setCategory(null);
+        }
+
+        if (request.accountId() != null) {
+            Account account = accountRepository.findById(request.accountId())
+                    .filter(a -> a.getUser().getId().equals(user.getId()))
+                    .orElseThrow(() -> new AccountNotFoundException("Account not found: " + request.accountId()));
+            existing.setAccount(account);
+        } else {
+            existing.setAccount(null);
         }
 
         Transaction updated = transactionRepository.save(existing);

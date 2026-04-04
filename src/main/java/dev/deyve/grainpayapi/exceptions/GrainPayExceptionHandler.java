@@ -27,6 +27,11 @@ public class GrainPayExceptionHandler {
         return buildError(ex.getMessage(), HttpStatus.NOT_FOUND, List.of());
     }
 
+    @ExceptionHandler(AccountNotFoundException.class)
+    public ResponseEntity<GrainPayError> handleAccountNotFound(AccountNotFoundException ex) {
+        return buildError(ex.getMessage(), HttpStatus.NOT_FOUND, List.of());
+    }
+
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<GrainPayError> handleUserAlreadyExists(UserAlreadyExistsException ex) {
         return buildError(ex.getMessage(), HttpStatus.CONFLICT, List.of());

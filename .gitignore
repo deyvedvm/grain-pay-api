@@ -13,6 +13,13 @@ bin/
 logs/
 *.log
 
+# Environment and secrets
+.env
+.env.*
+*.local.yml
+application-local.yml
+application-secrets.yml
+
 # Compiled Java classes
 *.class
 

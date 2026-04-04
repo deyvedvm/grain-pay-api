@@ -30,6 +30,8 @@ public record CreateTransactionRequest(
 
         Long categoryId,
 
+        Long accountId,
+
         String notes,
 
         Set<String> tags,

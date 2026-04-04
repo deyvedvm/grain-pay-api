@@ -19,6 +19,7 @@ public record TransactionResponse(
         String description,
         PaymentType paymentType,
         CategoryResponse category,
+        AccountResponse account,
         String notes,
         Set<String> tags,
         Long userId,
