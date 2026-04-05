@@ -4,12 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.net.InetAddress;
 import java.util.Objects;
 
 @SpringBootApplication
+@EnableScheduling
 public class GrainPayApiApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(GrainPayApiApplication.class);

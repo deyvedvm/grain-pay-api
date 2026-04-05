@@ -32,6 +32,11 @@ public class GrainPayExceptionHandler {
         return buildError(ex.getMessage(), HttpStatus.NOT_FOUND, List.of());
     }
 
+    @ExceptionHandler(RecurringTransactionNotFoundException.class)
+    public ResponseEntity<GrainPayError> handleRecurringTransactionNotFound(RecurringTransactionNotFoundException ex) {
+        return buildError(ex.getMessage(), HttpStatus.NOT_FOUND, List.of());
+    }
+
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<GrainPayError> handleUserAlreadyExists(UserAlreadyExistsException ex) {
         return buildError(ex.getMessage(), HttpStatus.CONFLICT, List.of());
