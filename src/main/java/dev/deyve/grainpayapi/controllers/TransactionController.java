@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -66,8 +67,9 @@ public class TransactionController {
             @AuthenticationPrincipal User user) {
 
         logger.info("GRAIN-API: Save transaction type={}", request.type());
-        TransactionResponse saved = transactionService.save(request, user);
-        return new ResponseEntity<>(new Response(saved, CREATED.value(), "Transaction created"), CREATED);
+        List<TransactionResponse> saved = transactionService.save(request, user);
+        Object data = saved.size() == 1 ? saved.get(0) : saved;
+        return new ResponseEntity<>(new Response(data, CREATED.value(), "Transaction created"), CREATED);
     }
 
     @GetMapping("/{id}")
