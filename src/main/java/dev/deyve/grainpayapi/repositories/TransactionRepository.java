@@ -43,4 +43,22 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
                                                           @Param("categoryId") Long categoryId,
                                                           @Param("start") LocalDate start,
                                                           @Param("end") LocalDate end);
+
+    // Reports
+    @Query("SELECT MONTH(t.date), t.type, SUM(t.amount) FROM Transaction t " +
+            "WHERE t.user.id = :userId AND YEAR(t.date) = :year " +
+            "GROUP BY MONTH(t.date), t.type ORDER BY MONTH(t.date)")
+    List<Object[]> sumByMonthAndTypeForYear(@Param("userId") Long userId, @Param("year") Integer year);
+
+    @Query("SELECT YEAR(t.date), t.type, SUM(t.amount) FROM Transaction t " +
+            "WHERE t.user.id = :userId " +
+            "GROUP BY YEAR(t.date), t.type ORDER BY YEAR(t.date)")
+    List<Object[]> sumByYearAndType(@Param("userId") Long userId);
+
+    @Query("SELECT COALESCE(t.category.name, 'Sem categoria'), t.type, SUM(t.amount) FROM Transaction t " +
+            "WHERE t.user.id = :userId AND t.date BETWEEN :start AND :end " +
+            "GROUP BY t.category.name, t.type ORDER BY SUM(t.amount) DESC")
+    List<Object[]> sumByCategoryAndTypeAndDateBetween(@Param("userId") Long userId,
+                                                       @Param("start") LocalDate start,
+                                                       @Param("end") LocalDate end);
 }
