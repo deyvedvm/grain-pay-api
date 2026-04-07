@@ -35,4 +35,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     List<Object[]> sumIncomeBySourceAndDateBetween(@Param("userId") Long userId,
                                                    @Param("start") LocalDate start,
                                                    @Param("end") LocalDate end);
+
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
+            "WHERE t.user.id = :userId AND t.type = 'EXPENSE' " +
+            "AND t.category.id = :categoryId AND t.date BETWEEN :start AND :end")
+    BigDecimal sumExpensesByUserAndCategoryAndDateBetween(@Param("userId") Long userId,
+                                                          @Param("categoryId") Long categoryId,
+                                                          @Param("start") LocalDate start,
+                                                          @Param("end") LocalDate end);
 }

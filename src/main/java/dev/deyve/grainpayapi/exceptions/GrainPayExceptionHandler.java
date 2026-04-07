@@ -37,6 +37,11 @@ public class GrainPayExceptionHandler {
         return buildError(ex.getMessage(), HttpStatus.NOT_FOUND, List.of());
     }
 
+    @ExceptionHandler(BudgetNotFoundException.class)
+    public ResponseEntity<GrainPayError> handleBudgetNotFound(BudgetNotFoundException ex) {
+        return buildError(ex.getMessage(), HttpStatus.NOT_FOUND, List.of());
+    }
+
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<GrainPayError> handleUserAlreadyExists(UserAlreadyExistsException ex) {
         return buildError(ex.getMessage(), HttpStatus.CONFLICT, List.of());
