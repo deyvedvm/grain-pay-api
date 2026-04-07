@@ -38,3 +38,13 @@ libs/
 *.ipr
 *.iws
 out/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+terraform.tfvars
+terraform.tfvars.json
+override.tf
+override.tf.json
