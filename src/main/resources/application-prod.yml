@@ -13,8 +13,8 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         temp:
           use_jdbc_metadata_defaults: false
-    show-sql: true
-    generate-ddl: true
+    show-sql: false
+    generate-ddl: false
   application:
     name: grain-pay-api
   flyway:

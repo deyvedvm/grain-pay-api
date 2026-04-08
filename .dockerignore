@@ -1,0 +1,12 @@
+.git
+.github
+.idea
+.vscode
+target
+terraform
+*.md
+*.log
+.env
+.env.*
+application-local.yml
+application-secrets.yml
