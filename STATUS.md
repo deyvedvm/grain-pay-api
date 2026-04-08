@@ -72,3 +72,30 @@
 |---|---|
 | Multi-moeda | Campo `currency` nas transações + taxa de conversão |
 | Autenticação social | Login com Google/GitHub via OAuth2 |
+
+---
+
+## Deploy
+
+### Atual — Fly.io
+
+- Plataforma escolhida: **Fly.io**
+- Docker-native, sempre ligado, HTTPS automático, ~$5/mês (512 MB RAM)
+- Deploy separado do frontend (Vercel/Netlify) — comunicação via CORS
+- Configuração: `fly.toml` na raiz do projeto
+- JVM tunada para ambiente com pouca memória: `-Xmx300m -Xss512k`
+
+### Versão 2.0 — AWS ECS Fargate (Terraform salvo)
+
+- Infraestrutura já esboçada em `terraform/`
+- Recursos provisionados: ECR, ECS Cluster, Task Definition (Fargate 512 CPU / 1024 MB), ECS Service
+- VPC completa: 2 subnets públicas (us-east-1a/b), IGW, route table, Security Group (porta 8080)
+- PostgreSQL externo (Neon DB) via env vars na task definition
+- Pendente para ativação: rodar `terraform init && terraform apply` com as credenciais via `TF_VAR_*`
+- Custo estimado com ALB: **$40-60/mês**
+
+### Frontend (futuro)
+
+- Deploy independente via **Vercel** ou **Netlify**
+- Consome a API do backend via URL pública (Fly.io ou AWS)
+- CORS já deve ser configurado no backend para aceitar a origem do frontend
