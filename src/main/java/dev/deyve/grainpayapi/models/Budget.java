@@ -31,6 +31,9 @@ public class Budget extends Auditable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = false)
+    private boolean notified = false;
+
     public Budget() {
     }
 
@@ -80,6 +83,14 @@ public class Budget extends Auditable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isNotified() {
+        return notified;
+    }
+
+    public void setNotified(boolean notified) {
+        this.notified = notified;
     }
 
     @Override

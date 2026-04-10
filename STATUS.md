@@ -56,11 +56,18 @@
 
 ---
 
-## Fase 4 — PLANEJADA
+## Fase 4 — EM ANDAMENTO
+
+### ✅ Notificações por e-mail
+- E-mail HTML disparado quando orçamento atinge >= 80% do limite
+- Job `@Scheduled` às 09:00 (`BudgetNotificationScheduler`)
+- Campo `notified` na tabela `budgets` evita reenvio no mesmo mês
+- Spring Mail + `JavaMailSender` + template HTML inline
+- Migration `V1_1_0`
+- Vars: `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`
 
 | Item | Descrição |
 |---|---|
-| Notificações | E-mail quando orçamento atingir 80% (Spring Mail + template) |
 | Metas financeiras | Entidade `Goal` (nome, valor alvo, prazo, progresso); `GET/POST/PUT/DELETE /api/goals` |
 | Importação de extrato | Upload CSV/OFX para criação automática de transações; `POST /api/import` |
 
