@@ -2,9 +2,9 @@ package dev.deyve.grainpayapi.services;
 
 import dev.deyve.grainpayapi.dtos.ImportResultResponse;
 import dev.deyve.grainpayapi.dtos.ImportRowError;
-import dev.deyve.grainpayapi.models.Transaction;
-import dev.deyve.grainpayapi.models.TransactionType;
-import dev.deyve.grainpayapi.models.User;
+import dev.deyve.grainpayapi.models.*;
+import dev.deyve.grainpayapi.repositories.AccountRepository;
+import dev.deyve.grainpayapi.repositories.CategoryRepository;
 import dev.deyve.grainpayapi.repositories.TransactionRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -30,15 +30,25 @@ public class ImportService {
     private static final Logger logger = LoggerFactory.getLogger(ImportService.class);
 
     private final TransactionRepository transactionRepository;
+    private final CategoryRepository categoryRepository;
+    private final AccountRepository accountRepository;
 
-    public ImportService(TransactionRepository transactionRepository) {
+    public ImportService(TransactionRepository transactionRepository,
+                         CategoryRepository categoryRepository,
+                         AccountRepository accountRepository) {
         this.transactionRepository = transactionRepository;
+        this.categoryRepository = categoryRepository;
+        this.accountRepository = accountRepository;
     }
 
     @Transactional
     public ImportResultResponse importCsv(MultipartFile file, User user) {
+        List<Category> categories = categoryRepository.findAllByUserIdOrderByNameAsc(user.getId());
+        List<Account> accounts = accountRepository.findAllByUserIdOrderByNameAsc(user.getId());
+
         List<Transaction> toSave = new ArrayList<>();
         List<ImportRowError> errors = new ArrayList<>();
+        int duplicates = 0;
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
              CSVParser parser = CSVFormat.DEFAULT.builder()
@@ -52,7 +62,14 @@ public class ImportService {
             for (CSVRecord record : parser) {
                 lineNumber++;
                 try {
-                    Transaction transaction = parseRecord(record, user);
+                    Transaction transaction = parseRecord(record, user, categories, accounts);
+
+                    if (isDuplicate(transaction, user)) {
+                        duplicates++;
+                        logger.debug("GRAIN-API: Duplicate skipped at line {}", lineNumber);
+                        continue;
+                    }
+
                     toSave.add(transaction);
                 } catch (Exception e) {
                     errors.add(new ImportRowError(lineNumber, e.getMessage()));
@@ -69,14 +86,14 @@ public class ImportService {
             transactionRepository.saveAll(toSave);
         }
 
-        logger.info("GRAIN-API: Import finished — imported={}, failed={}", toSave.size(), errors.size());
-        return new ImportResultResponse(toSave.size(), errors.size(), errors);
+        logger.info("GRAIN-API: Import finished — imported={}, duplicates={}, failed={}", toSave.size(), duplicates, errors.size());
+        return new ImportResultResponse(toSave.size(), duplicates, errors.size(), errors);
     }
 
-    private Transaction parseRecord(CSVRecord record, User user) {
-        String dateStr = getRequired(record, "date", record.getRecordNumber());
-        String description = getRequired(record, "description", record.getRecordNumber());
-        String amountStr = getRequired(record, "amount", record.getRecordNumber());
+    private Transaction parseRecord(CSVRecord record, User user, List<Category> categories, List<Account> accounts) {
+        String dateStr = getRequired(record, "date");
+        String description = getRequired(record, "description");
+        String amountStr = getRequired(record, "amount");
 
         LocalDate date;
         try {
@@ -105,21 +122,44 @@ public class ImportService {
         transaction.setDate(date);
         transaction.setDescription(description);
         transaction.setUser(user);
+        transaction.setCategory(matchCategory(description, categories));
+        transaction.setAccount(matchAccount(description, accounts));
 
         return transaction;
     }
 
-    private String getRequired(CSVRecord record, String column, long line) {
+    private boolean isDuplicate(Transaction t, User user) {
+        return transactionRepository.existsByUserIdAndDateAndAmountAndDescription(
+                user.getId(), t.getDate(), t.getAmount(), t.getDescription());
+    }
+
+    private Category matchCategory(String description, List<Category> categories) {
+        String lower = description.toLowerCase();
+        return categories.stream()
+                .filter(c -> lower.contains(c.getName().toLowerCase()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private Account matchAccount(String description, List<Account> accounts) {
+        String lower = description.toLowerCase();
+        return accounts.stream()
+                .filter(a -> lower.contains(a.getName().toLowerCase()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private String getRequired(CSVRecord record, String column) {
         try {
             String value = record.get(column);
             if (value == null || value.isBlank()) {
-                throw new IllegalArgumentException("Column '" + column + "' is required at line " + line);
+                throw new IllegalArgumentException("Column '" + column + "' is required");
             }
             return value;
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
-            throw new IllegalArgumentException("Missing column '" + column + "' at line " + line);
+            throw new IllegalArgumentException("Missing column '" + column + "'");
         }
     }
 }

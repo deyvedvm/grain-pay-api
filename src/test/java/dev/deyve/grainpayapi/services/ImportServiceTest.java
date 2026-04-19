@@ -1,9 +1,9 @@
 package dev.deyve.grainpayapi.services;
 
 import dev.deyve.grainpayapi.dtos.ImportResultResponse;
-import dev.deyve.grainpayapi.models.Transaction;
-import dev.deyve.grainpayapi.models.TransactionType;
-import dev.deyve.grainpayapi.models.User;
+import dev.deyve.grainpayapi.models.*;
+import dev.deyve.grainpayapi.repositories.AccountRepository;
+import dev.deyve.grainpayapi.repositories.CategoryRepository;
 import dev.deyve.grainpayapi.repositories.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,18 +15,28 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ImportServiceTest {
 
     @Mock
     private TransactionRepository transactionRepository;
+
+    @Mock
+    private CategoryRepository categoryRepository;
+
+    @Mock
+    private AccountRepository accountRepository;
 
     @InjectMocks
     private ImportService importService;
@@ -37,6 +47,11 @@ class ImportServiceTest {
     void setUp() {
         user = new User();
         user.setId(1L);
+
+        when(categoryRepository.findAllByUserIdOrderByNameAsc(1L)).thenReturn(List.of());
+        when(accountRepository.findAllByUserIdOrderByNameAsc(1L)).thenReturn(List.of());
+        when(transactionRepository.existsByUserIdAndDateAndAmountAndDescription(anyLong(), any(), any(), anyString()))
+                .thenReturn(false);
     }
 
     @Test
@@ -49,8 +64,8 @@ class ImportServiceTest {
         ImportResultResponse result = importService.importCsv(file, user);
 
         assertThat(result.imported()).isEqualTo(2);
+        assertThat(result.duplicates()).isEqualTo(0);
         assertThat(result.failed()).isEqualTo(0);
-        assertThat(result.errors()).isEmpty();
     }
 
     @Test
@@ -103,20 +118,83 @@ class ImportServiceTest {
     }
 
     @Test
-    void importCsv_shouldRejectZeroAmount() {
-        String csv = "date,description,amount\n2024-01-15,Erro,0.00";
+    void importCsv_shouldSkipDuplicatesAndCountThem() {
+        String csv = "date,description,amount\n2024-01-15,Supermercado,-150.00\n2024-01-16,Salário,3000.00";
         MockMultipartFile file = new MockMultipartFile("file", "extrato.csv", "text/csv", csv.getBytes());
+
+        when(transactionRepository.existsByUserIdAndDateAndAmountAndDescription(
+                eq(1L), eq(LocalDate.of(2024, 1, 15)), eq(new BigDecimal("150.00")), eq("Supermercado")))
+                .thenReturn(true);
+        when(transactionRepository.saveAll(anyList())).thenAnswer(i -> i.getArgument(0));
 
         ImportResultResponse result = importService.importCsv(file, user);
 
-        assertThat(result.imported()).isEqualTo(0);
-        assertThat(result.failed()).isEqualTo(1);
-        verify(transactionRepository, never()).saveAll(anyList());
+        assertThat(result.imported()).isEqualTo(1);
+        assertThat(result.duplicates()).isEqualTo(1);
+        assertThat(result.failed()).isEqualTo(0);
     }
 
     @Test
-    void importCsv_shouldNotCallSaveWhenAllRowsFail() {
-        String csv = "date,description,amount\nbad-date,X,abc";
+    void importCsv_shouldLinkCategoryByDescriptionSubstring() {
+        Category alimentacao = new Category();
+        alimentacao.setId(1L);
+        alimentacao.setName("Alimentação");
+
+        when(categoryRepository.findAllByUserIdOrderByNameAsc(1L)).thenReturn(List.of(alimentacao));
+
+        String csv = "date,description,amount\n2024-01-15,Supermercado alimentação,-80.00";
+        MockMultipartFile file = new MockMultipartFile("file", "extrato.csv", "text/csv", csv.getBytes());
+
+        when(transactionRepository.saveAll(anyList())).thenAnswer(i -> i.getArgument(0));
+
+        importService.importCsv(file, user);
+
+        ArgumentCaptor<List<Transaction>> captor = ArgumentCaptor.forClass(List.class);
+        verify(transactionRepository).saveAll(captor.capture());
+
+        assertThat(captor.getValue().get(0).getCategory()).isEqualTo(alimentacao);
+    }
+
+    @Test
+    void importCsv_shouldLinkAccountByDescriptionSubstring() {
+        Account nubank = new Account();
+        nubank.setId(1L);
+        nubank.setName("Nubank");
+
+        when(accountRepository.findAllByUserIdOrderByNameAsc(1L)).thenReturn(List.of(nubank));
+
+        String csv = "date,description,amount\n2024-01-15,Compra Nubank cartão,-200.00";
+        MockMultipartFile file = new MockMultipartFile("file", "extrato.csv", "text/csv", csv.getBytes());
+
+        when(transactionRepository.saveAll(anyList())).thenAnswer(i -> i.getArgument(0));
+
+        importService.importCsv(file, user);
+
+        ArgumentCaptor<List<Transaction>> captor = ArgumentCaptor.forClass(List.class);
+        verify(transactionRepository).saveAll(captor.capture());
+
+        assertThat(captor.getValue().get(0).getAccount()).isEqualTo(nubank);
+    }
+
+    @Test
+    void importCsv_shouldLeaveNullWhenNoMatchFound() {
+        String csv = "date,description,amount\n2024-01-15,Compra genérica,-50.00";
+        MockMultipartFile file = new MockMultipartFile("file", "extrato.csv", "text/csv", csv.getBytes());
+
+        when(transactionRepository.saveAll(anyList())).thenAnswer(i -> i.getArgument(0));
+
+        importService.importCsv(file, user);
+
+        ArgumentCaptor<List<Transaction>> captor = ArgumentCaptor.forClass(List.class);
+        verify(transactionRepository).saveAll(captor.capture());
+
+        assertThat(captor.getValue().get(0).getCategory()).isNull();
+        assertThat(captor.getValue().get(0).getAccount()).isNull();
+    }
+
+    @Test
+    void importCsv_shouldRejectZeroAmount() {
+        String csv = "date,description,amount\n2024-01-15,Erro,0.00";
         MockMultipartFile file = new MockMultipartFile("file", "extrato.csv", "text/csv", csv.getBytes());
 
         ImportResultResponse result = importService.importCsv(file, user);

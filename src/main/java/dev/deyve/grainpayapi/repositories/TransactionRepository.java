@@ -44,6 +44,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
                                                           @Param("start") LocalDate start,
                                                           @Param("end") LocalDate end);
 
+    boolean existsByUserIdAndDateAndAmountAndDescription(Long userId, LocalDate date, BigDecimal amount, String description);
+
     // Export
     List<Transaction> findAllByUser_IdAndDateBetweenOrderByDateAsc(Long userId, LocalDate start, LocalDate end);
 

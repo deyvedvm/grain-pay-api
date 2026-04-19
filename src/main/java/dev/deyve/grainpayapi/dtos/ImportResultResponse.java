@@ -4,6 +4,7 @@ import java.util.List;
 
 public record ImportResultResponse(
         int imported,
+        int duplicates,
         int failed,
         List<ImportRowError> errors
 ) {
