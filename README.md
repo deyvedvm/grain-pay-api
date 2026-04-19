@@ -164,6 +164,41 @@ Cada orçamento retorna `spent`, `percentage` e `alert` (true quando >= 80%). Qu
 | `GET` | `/api/reports/yearly` | Totais por ano |
 | `GET` | `/api/reports/by-category?month=2026-04` | Receita e despesa por categoria |
 
+### Metas financeiras (`/api/goals`)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/api/goals` | Listar metas do usuário |
+| `GET` | `/api/goals/{id}` | Buscar por ID |
+| `POST` | `/api/goals` | Criar meta |
+| `PUT` | `/api/goals/{id}` | Atualizar meta (inclui `currentAmount` e `status`) |
+| `DELETE` | `/api/goals/{id}` | Excluir |
+
+Cada meta retorna `progress` (%) calculado dinamicamente a partir de `currentAmount / targetAmount`. Status: `ACTIVE`, `COMPLETED`, `ABANDONED`. Prioridade: `LOW`, `MEDIUM`, `HIGH`.
+
+### Importação de extrato (`/api/import`)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `POST` | `/api/import` | Upload de extrato CSV (`multipart/form-data`, campo `file`) |
+
+**Formato CSV esperado:**
+```
+date,description,amount
+2024-01-15,Supermercado,-150.00
+2024-01-16,Salário,3000.00
+```
+
+- `amount` negativo → `EXPENSE`; positivo → `INCOME`
+- Linhas inválidas são puladas e reportadas sem abortar o import
+- Duplicatas detectadas por `(date, amount, description)` são contadas separadamente
+- Categoria e conta vinculadas automaticamente por substring do campo `description`
+
+**Resposta:**
+```json
+{ "imported": 8, "duplicates": 2, "failed": 1, "errors": [{ "line": 5, "reason": "..." }] }
+```
+
 ### Exportação (`/api/export`)
 
 | Método | Rota | Descrição |
@@ -237,6 +272,7 @@ Disponível em `http://localhost:{PORT}/swagger-ui/index.html` após iniciar a a
 | `V1_0_8` | Criação da tabela `recurring_transactions` |
 | `V1_0_9` | Criação da tabela `budgets` |
 | `V1_1_0` | Coluna `notified` em `budgets` (controle de alerta por e-mail) |
+| `V1_1_1` | Criação da tabela `goals` (metas financeiras) |
 
 ## Notificações por e-mail
 
@@ -261,8 +297,8 @@ Para desenvolvimento, recomenda-se o [Mailtrap](https://mailtrap.io) como servid
 - [x] Relatórios mensais e anuais
 - [x] Exportação CSV/PDF
 - [x] Notificações por e-mail (orçamento >= 80%)
-- [ ] Metas financeiras (`/api/goals`)
-- [ ] Importação de extrato CSV/OFX
+- [x] Metas financeiras (`/api/goals`)
+- [x] Importação de extrato CSV com detecção de duplicatas e vínculo automático
 - [ ] CI/CD
 - [ ] Monitoramento com Grafana/Prometheus
 

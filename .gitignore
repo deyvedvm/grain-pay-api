@@ -16,6 +16,7 @@ logs/
 # Environment and secrets
 .env
 .env.*
+!.env.example
 *.local.yml
 application-local.yml
 application-secrets.yml
