@@ -42,6 +42,11 @@ public class GrainPayExceptionHandler {
         return buildError(ex.getMessage(), HttpStatus.NOT_FOUND, List.of());
     }
 
+    @ExceptionHandler(GoalNotFoundException.class)
+    public ResponseEntity<GrainPayError> handleGoalNotFound(GoalNotFoundException ex) {
+        return buildError(ex.getMessage(), HttpStatus.NOT_FOUND, List.of());
+    }
+
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<GrainPayError> handleUserAlreadyExists(UserAlreadyExistsException ex) {
         return buildError(ex.getMessage(), HttpStatus.CONFLICT, List.of());
