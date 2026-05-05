@@ -31,18 +31,16 @@ import java.util.List;
 public class SecurityConfig {
 
     private final UserRepository userRepository;
-    private final JwtAuthFilter jwtAuthFilter;
 
     @Value("${app.cors.allowed-origins:http://localhost:5173}")
     private List<String> allowedOrigins;
 
-    public SecurityConfig(UserRepository userRepository, JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.jwtAuthFilter = jwtAuthFilter;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
