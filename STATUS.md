@@ -106,3 +106,32 @@
 - Deploy independente via **Vercel** ou **Netlify**
 - Consome a API do backend via URL pública (Fly.io ou AWS)
 - CORS já deve ser configurado no backend para aceitar a origem do frontend
+
+---
+
+## Fase 5 — Produção (pendente)
+
+### Cobertura de testes automatizados — mapeamento (2026-07-17)
+
+Hoje só existem testes unitários de `GoalService` e `ImportService`. Falta cobrir, em ordem de prioridade:
+
+**Segurança (prioridade alta — sem cobertura nenhuma hoje)**
+- `JwtAuthFilter` — token válido / expirado / ausente / malformado
+- `JwtService` — geração e validação de token
+- `SecurityConfig` (teste de integração) — 401 sem token, 403 sem permissão, 400 para body malformado (`JwtAuthenticationEntryPoint`, `JwtAccessDeniedHandler`, `GrainPayExceptionHandler`)
+- `AuthService` — register com e-mail duplicado, login com credenciais inválidas
+
+**Domínio core (prioridade média)**
+- `TransactionService` — parcelamento, filtros via `TransactionSpecification`, vínculo categoria/conta
+- `BudgetService` — cálculo de `spent` / `percentage` / `alert`
+- `DashboardService` — agregações do resumo mensal
+- `ReportService` — monthly / yearly / by-category
+- `AccountService`, `CategoryService` — CRUD básico
+
+**Periféricos (prioridade baixa)**
+- `ExportService` — geração de CSV/PDF
+- `RecurringTransactionService` + `RecurringTransactionScheduler` — materialização diária
+- `BudgetNotificationScheduler` + `EmailService` — disparo do alerta ≥ 80%
+
+**Integração** (nenhum teste existe hoje, apesar de TestContainers já estar no `pom.xml`)
+- Pelo menos 1 teste ponta a ponta por fluxo crítico (auth → criar transação → dashboard)
