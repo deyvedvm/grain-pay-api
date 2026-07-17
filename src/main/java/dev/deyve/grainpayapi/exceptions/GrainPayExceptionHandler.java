@@ -3,6 +3,7 @@ package dev.deyve.grainpayapi.exceptions;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -86,6 +87,11 @@ public class GrainPayExceptionHandler {
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .collect(Collectors.toList());
         return buildError("Validation failed. Check 'errors' field for more details.", HttpStatus.BAD_REQUEST, errors);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<GrainPayError> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        return buildError("Malformed request body. Check field types and required values.", HttpStatus.BAD_REQUEST, List.of());
     }
 
     @ExceptionHandler(InternalServerError.class)
