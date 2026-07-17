@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   app:
     container_name: grain-pay-api
@@ -10,10 +9,14 @@ services:
     depends_on:
       - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/grain-pay-local
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_PROFILES_ACTIVE: local
+      POSTGRES_DATASOURCE_URL: jdbc:postgresql://db:5432/grain-pay-local
+      POSTGRES_DATASOURCE_USERNAME: postgres
+      POSTGRES_DATASOURCE_PASSWORD: password
       PORT: 8080
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
   db:
     container_name: grain-pay-postgres
     image: postgres:latest
