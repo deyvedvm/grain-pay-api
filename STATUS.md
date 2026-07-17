@@ -135,3 +135,22 @@ Hoje só existem testes unitários de `GoalService` e `ImportService`. Falta cob
 
 **Integração** (nenhum teste existe hoje, apesar de TestContainers já estar no `pom.xml`)
 - Pelo menos 1 teste ponta a ponta por fluxo crítico (auth → criar transação → dashboard)
+
+### Diagrama de arquitetura (pendente, mapeado em 2026-07-17)
+
+Documentar visualmente o projeto antes de fechar a fase de Produção.
+
+**Escopo sugerido:**
+- Cliente (`grain-pay-web` / React) → API (Spring Boot, JWT stateless)
+- API → PostgreSQL (Flyway migrations)
+- API → SMTP (Mailtrap em dev / provedor real em prod) — alerta de orçamento ≥ 80%
+- Jobs agendados: `BudgetNotificationScheduler` (09:00), `RecurringTransactionScheduler` (00:05)
+- Deploy atual (Fly.io) e futuro (AWS ECS Fargate, Terraform em `terraform/`)
+
+**Ferramenta — recomendação:** Mermaid, com o diagrama vivendo em `ARCHITECTURE.md` no próprio repo.
+- A favor: texto puro versionado no git, diff legível, renderiza nativamente no GitHub sem instalar nada, fica sempre por perto do código.
+- Contra: menos controle visual/layout do que uma ferramenta de desenho livre.
+
+Draw.io (app.diagrams.net) é uma alternativa sólida se o objetivo for algo mais apresentável (ex: portfólio/LinkedIn): dá pra salvar o `.drawio` (XML) no repo e exportar PNG/SVG pro README, mas o arquivo não gera diffs legíveis e exige abrir a ferramenta pra editar.
+
+**Sugestão:** começar com Mermaid (custo quase zero, resolve "documentar arquitetura" de forma versionada); se depois quiser algo mais visual pra mostrar pra alguém, redesenhar no Draw.io a partir do que já estiver mapeado no Mermaid.
